@@ -1,0 +1,150 @@
+name: streamit_laravel
+description: "A new Flutter project."
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+version: 2.3.0+42
+
+environment:
+  sdk: ">=3.3.3 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Commons
+  nb_utils: ^7.1.8
+  flutter_svg: ^2.3.0
+  intl: ^0.20.2
+  html: ^0.15.6
+  dio: '>=5.9.0 <5.10.0'
+  cached_network_image: ^3.4.1
+  url_launcher: ^6.3.2
+  lottie: ^3.5.1
+  device_info_plus: ^12.3.0
+  flutter_spinkit: ^5.2.2
+  speech_to_text: ^7.4.0
+  path_provider: ^2.1.6
+
+  wakelock_plus: ^1.4.0
+  permission_handler: ^12.0.1
+  flutter_custom_tabs: ^2.6.0
+  #QR Code Scanner
+  mobile_scanner: ^7.4.0
+
+  # XML
+  xml: ^6.6.1
+
+  google_mobile_ads: ^9.1.0
+
+  # Firebase
+  firebase_core: ^4.13.0
+  firebase_auth: ^6.5.7
+  firebase_crashlytics: ^5.2.7
+  firebase_messaging: ^16.5.0
+
+  #Notification
+  flutter_local_notifications: ^22.3.0
+
+  #payment gateways
+
+  flutter_stripe: ^14.0.0
+  razorpay_flutter: ^1.4.5
+  uuid: ^4.6.0
+  flutterwave_standard:
+    git:
+      url: https://github.com/iqonic-design/flutterwave_standard.git
+      ref: main
+
+  flutter_paystack:
+    git:
+      url: https://github.com/iqonic-design/flutter_paystack.git
+      ref: 1.5.1
+
+  flutter_paypal_checkout:
+    git:
+      url: https://github.com/iqonic-design/flutter_paypal_checkout.git
+      ref: main
+
+  purchases_flutter: ^10.9.0
+  # Social Login
+  the_apple_sign_in: ^1.1.1
+  google_sign_in: ^7.2.0
+
+  # State Management
+  get: ^4.7.3
+  get_storage: ^2.1.1
+
+  # Pickers
+  image_picker: ^1.2.3
+  country_picker: ^2.0.27
+  pod_player: 0.2.2
+  better_player_plus: ^1.0.0
+
+  subtitle: ^0.2.0
+  media_kit: ^1.2.6 # Primary package.
+  media_kit_video: ^2.0.1 # For video rendering.
+  media_kit_libs_video: ^1.0.7 # Native video dependencies.
+
+  share_plus: ^12.0.1
+
+  #  Chrome Cast
+  flutter_chrome_cast: ^1.4.8
+
+
+  open_file: ^4.0.0
+  screen_protector: ^1.5.3
+  # Encryption & Storage
+  flutter_secure_storage: ^9.2.4
+  encrypt: ^5.0.3
+  crypto: ^3.0.7
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  path: ^1.9.1
+  convert: ^3.1.2
+  flutter_inappwebview: ^6.2.0-beta.3
+
+  playx_version_update: ^1.0.1
+
+  http: ^1.6.0
+  # Localization
+  flutter_localizations:
+    sdk: flutter
+  firebase_remote_config: ^6.5.6
+  slugify: ^2.0.0
+  firebase_analytics: ^12.4.6
+  cinetpay:
+    git:
+      url: https://github.com/iqonic-design/cinetpay.git
+      ref: main
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  hive_generator: ^2.0.1
+
+flutter:
+  uses-material-design: true
+
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto-Italic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 800
+
+  assets:
+    - assets/
+    - assets/images/
+    - assets/icons/
+    - assets/flags/
+    - assets/lottie/
+    - assets/icons/social_media/
+    - assets/icons/quality/
+    - assets/images/walkthrough_images/
+    - assets/images/watching_profile/
+    - assets/logos/payment_logo/
