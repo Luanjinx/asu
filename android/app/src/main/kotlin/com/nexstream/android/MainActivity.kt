@@ -1,4 +1,4 @@
-package com.iqonic.streamitlaravel
+package com.nexstream.android
 
 import android.app.PictureInPictureParams
 import android.os.Build
@@ -15,7 +15,7 @@ import android.os.Bundle
 
 //FlPiPActivity()
 class MainActivity: FlutterFragmentActivity() {
-    private val CHANNEL: String = "flutter.iqonic.streamitlaravel.com.channel"
+    private val CHANNEL: String = "flutter.nexstream.android.com.channel"
     private lateinit var channel: MethodChannel
 
     override fun onCreate(savedInstanceState: Bundle?) {

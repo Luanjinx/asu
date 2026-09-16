@@ -23,7 +23,7 @@ val flutterVersionCode: String = localProperties.getProperty("flutter.versionCod
 val flutterVersionName: String = localProperties.getProperty("flutter.versionName") ?: "1.0.0"
 
 android {
-    namespace = "com.iqonic.streamitlaravel"
+    namespace = "com.nexstream.android"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.13599879"
 
@@ -42,7 +42,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.iqonic.streamitlaravel"
+        applicationId = "com.nexstream.android"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInt()

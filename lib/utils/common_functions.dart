@@ -51,7 +51,7 @@ import 'common_base.dart';
 import 'constants.dart';
 
 ///DO NOT CHANGE THE APP PACKAGE NAME
-String appPackageName = 'com.iqonic.streamitlaravel';
+String appPackageName = 'com.nexstream.android';
 
 Future<bool> get isIqonicProduct async => await getPackageName() == appPackageName;
 

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.iqonic.streamitlaravel">
+    package="com.nexstream.android>
 
     <!-- ================= Permissions ================= -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -21,7 +21,7 @@
         android:fullBackupOnly="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Streamit"
+        android:label="Nexstream"
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"

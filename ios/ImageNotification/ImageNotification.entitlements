@@ -4,8 +4,8 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>webcredentials:com.iqonic.streamitlaravel</string>
-		<string>applinks:com.iqonic.streamitlaravel</string>
+		<string>webcredentials:com.nexstream.android</string>
+		<string>applinks:com.nexstream.android</string>
 	</array>
 </dict>
 </plist>

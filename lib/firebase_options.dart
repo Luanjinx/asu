@@ -38,7 +38,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyCsJLRihuO-i2cMfJeB7lLeCJ158e8yeFk',
-    appId: '1:988658912152:android:46b188878790fb527bf9ed',
+    appId: '1:773450355985:android:54763622327588580ce8b01:773450355985:android:54763622327588580ce8b0',
     messagingSenderId: '988658912152',
     projectId: 'streamit-5ef16',
     storageBucket: 'streamit-5ef16.firebasestorage.app',
@@ -47,11 +47,11 @@ class DefaultFirebaseOptions {
   ///Note : Values available android/app/google-services.json
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'YOUR_IOS_API_KEY',
-    appId: 'YOUR_IOS_APP_ID',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
-    iosBundleId: 'YOUR_IOS_BUNDLE_ID',
+    apiKey: 'AIzaSyDZbpBqkGZELqnNWHle9XoZ_ov2h3lIuMw',
+    appId: '1:773450355985:ios:e4f0e6667c7d1e310ce8b0',
+    messagingSenderId: '988658912152',
+    projectId: 'streamit-5ef16',
+    storageBucket: 'streamit-5ef16.firebasestorage.app',
+    iosBundleId: 'com.nexstream.ios',
   );
 }

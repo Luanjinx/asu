@@ -1,4 +1,4 @@
-package com.iqonic.streamitlaravel
+package com.nexstream.android
 
 import android.app.Notification
 import android.app.NotificationChannel

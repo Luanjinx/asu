@@ -1,65 +1,49 @@
 {
   "project_info": {
-    "project_number": "988658912152",
-    "firebase_url": "https://streamit-5ef16-default-rtdb.firebaseio.com",
-    "project_id": "streamit-5ef16",
-    "storage_bucket": "streamit-5ef16.firebasestorage.app"
+    "project_number": "773450355985",
+    "firebase_url": "https://streamit-7bbe3-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "streamit-7bbe3",
+    "storage_bucket": "streamit-7bbe3.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:988658912152:android:46b188878790fb527bf9ed",
+        "mobilesdk_app_id": "1:773450355985:android:54763622327588580ce8b0",
         "android_client_info": {
-          "package_name": "com.iqonic.streamitlaravel"
+          "package_name": "com.nexstream.android"
         }
       },
       "oauth_client": [
         {
-          "client_id": "988658912152-78q6biuf9lklfb4tmju9f303bn0cdm4i.apps.googleusercontent.com",
+          "client_id": "773450355985-k4ubpgfjuv6hqtjhvh3q9vp0a68s9bnc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.iqonic.streamitlaravel",
+            "package_name": "com.nexstream.android",
             "certificate_hash": "ad8facc97ae724248377d6afc2837b02b7262d50"
           }
         },
         {
-          "client_id": "YOUR_ANDROID_OAUTH_CLIENT_ID_2",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.iqonic.streamitlaravel",
-            "certificate_hash": "YOUR_CERTIFICATE_HASH_2"
-          }
-        },
-        {
-          "client_id": "YOUR_ANDROID_OAUTH_CLIENT_ID_3",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.iqonic.streamitlaravel",
-            "certificate_hash": "YOUR_CERTIFICATE_HASH_3"
-          }
-        },
-        {
-          "client_id": "988658912152-fa0ouj7at8jubc2kgl5rnq0noilke89i.apps.googleusercontent.com",
+          "client_id": "773450355985-0c41l5laqh4iq8did1k4bsaq402qe1lh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCsJLRihuO-i2cMfJeB7lLeCJ158e8yeFk"
+          "current_key": "AIzaSyDZbpBqkGZELqnNWHle9XoZ_ov2h3lIuMw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "YOUR_IOS_OAUTH_CLIENT_ID_1",
+              "client_id": "773450355985-0c41l5laqh4iq8did1k4bsaq402qe1lh.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "YOUR_IOS_OAUTH_CLIENT_ID_2",
+              "client_id": "773450355985-ej64odrqslfqq8eiduqi4m5oqe6jov78.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.iqonic.streamitlaravel"
+                "bundle_id": "com.nexstream.ios"
               }
             }
           ]
@@ -68,58 +52,34 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "YOUR_TV_ANDROID_MOBILESDK_APP_ID",
+        "mobilesdk_app_id": "1:773450355985:android:039ed8b472eb0ee30ce8b0",
         "android_client_info": {
-          "package_name": "com.iqonic.streamitlaraveltv"
+          "package_name": "com.nexstream.tv"
         }
       },
       "oauth_client": [
         {
-          "client_id": "YOUR_TV_ANDROID_OAUTH_CLIENT_ID_1",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.iqonic.streamitlaraveltv",
-            "certificate_hash": "YOUR_TV_CERTIFICATE_HASH_1"
-          }
-        },
-        {
-          "client_id": "YOUR_TV_ANDROID_OAUTH_CLIENT_ID_2",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.iqonic.streamitlaraveltv",
-            "certificate_hash": "YOUR_TV_CERTIFICATE_HASH_2"
-          }
-        },
-        {
-          "client_id": "YOUR_TV_ANDROID_OAUTH_CLIENT_ID_3",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.iqonic.streamitlaraveltv",
-            "certificate_hash": "YOUR_TV_CERTIFICATE_HASH_3"
-          }
-        },
-        {
-          "client_id": "YOUR_TV_ANDROID_OAUTH_CLIENT_ID_4",
+          "client_id": "773450355985-0c41l5laqh4iq8did1k4bsaq402qe1lh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "YOUR_TV_ANDROID_API_KEY"
+          "current_key": "AIzaSyDZbpBqkGZELqnNWHle9XoZ_ov2h3lIuMw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "YOUR_TV_IOS_OAUTH_CLIENT_ID_1",
+              "client_id": "773450355985-0c41l5laqh4iq8did1k4bsaq402qe1lh.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "YOUR_TV_IOS_OAUTH_CLIENT_ID_2",
+              "client_id": "773450355985-ej64odrqslfqq8eiduqi4m5oqe6jov78.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.iqonic.streamitlaravel"
+                "bundle_id": "com.nexstream.ios"
               }
             }
           ]
