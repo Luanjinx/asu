@@ -13,6 +13,8 @@ import 'package:streamit_laravel/utils/common_functions.dart';
 import 'package:streamit_laravel/utils/constants.dart';
 import 'package:streamit_laravel/utils/extension/string_extension.dart';
 import 'package:streamit_laravel/screens/content/components/rating_summary_card.dart';
+import 'package:streamit_laravel/screens/review/model/review_model.dart';
+import 'package:streamit_laravel/screens/auth/sign_in/sign_in_screen.dart';
 
 class ReviewComponent extends StatelessWidget {
   final ContentDetailsController controller;
@@ -59,8 +61,8 @@ class ReviewComponent extends StatelessWidget {
                           () => ReviewListScreen(
                             movieName: controller.content.value!.details.name,
                             contentType: controller.content.value!.details.type,
-                            posterImage: controller.content.value!.details.posterImage,
-                            averageRating: controller.content.value!.details.rating?.toDouble() ?? 0.0,
+                            posterImage: controller.content.value!.details.thumbnailImage,
+                            averageRating: double.tryParse(controller.content.value!.details.imdbRating) ?? 0.0,
                             totalReviews: details?.totalReviews ?? 0,
                           ),
                           arguments: ArgumentModel(intArgument: controller.content.value!.id),
@@ -80,7 +82,7 @@ class ReviewComponent extends StatelessWidget {
               ),
               if (hasReviews)
                 RatingSummaryCard(
-                  averageRating: controller.content.value!.details.rating?.toDouble() ?? 0.0,
+                  averageRating: double.tryParse(controller.content.value!.details.imdbRating) ?? 0.0,
                   totalReviews: details?.totalReviews ?? 0,
                   reviews: allReviews,
                   isLoggedIn: isLoggedIn.value,
@@ -89,7 +91,7 @@ class ReviewComponent extends StatelessWidget {
                       controller.openReviewDialog();
                       controller.isEditReview(myReview != null);
                     } else {
-                      Get.to(() => const SignInScreen());
+                      Get.to(() => SignInScreen());
                     }
                   },
                 ),
@@ -116,8 +118,8 @@ class ReviewComponent extends StatelessWidget {
                       () => ReviewListScreen(
                         movieName: controller.content.value!.details.name,
                         contentType: controller.content.value!.details.type,
-                        posterImage: controller.content.value!.details.posterImage,
-                        averageRating: controller.content.value!.details.rating?.toDouble() ?? 0.0,
+                        posterImage: controller.content.value!.details.thumbnailImage,
+                        averageRating: double.tryParse(controller.content.value!.details.imdbRating) ?? 0.0,
                         totalReviews: details?.totalReviews ?? 0,
                       ),
                       arguments: ArgumentModel(intArgument: controller.content.value!.id),
