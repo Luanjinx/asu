@@ -208,8 +208,10 @@ class ContentDetailsScreen extends StatelessWidget {
                               trimLines: 3,
                             ),
                           ],
-                          Row(
+                          Wrap(
                             spacing: 12,
+                            runSpacing: 8,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               if (contentDetailsController.content.value!.details.duration.isNotEmpty)
                                 TextIcon(
@@ -255,11 +257,12 @@ class ContentDetailsScreen extends StatelessWidget {
                                     size: 14,
                                   ),
                                 ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 12,
-                            children: [
+                              if (contentDetailsController.content.value!.details.contentRating.isNotEmpty)
+                                TextIcon(
+                                  text: contentDetailsController.content.value!.details.contentRating,
+                                  edgeInsets: EdgeInsets.zero,
+                                  textStyle: commonSecondaryTextStyle(),
+                                ),
                               if (contentDetailsController.content.value!.details.isAgeRestrictedContent.getBoolInt())
                                 Container(
                                   width: 60,
@@ -273,14 +276,6 @@ class ContentDetailsScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                              if (contentDetailsController.content.value!.details.contentRating.isNotEmpty)
-                                TextIcon(
-                                  text: contentDetailsController.content.value!.details.contentRating,
-                                  edgeInsets: EdgeInsets.zero,
-                                  textStyle: commonSecondaryTextStyle(),
-                                  useMarquee: true,
-                                  expandedText: true,
-                                ).expand(),
                             ],
                           ),
                           Row(
@@ -457,13 +452,7 @@ class ContentDetailsScreen extends StatelessWidget {
                                 ),
                             ],
                           ),
-                          if (!contentDetailsController.argumentData.details.isVideo)
-                            OtherDetailsComponent(
-                              contentData: contentDetailsController.content.value!,
-                              onNavigated: () {
-                                removeTrailer();
-                              },
-                            ),
+                          // Moved OtherDetailsComponent from here
                           if (contentDetailsController.content.value!.isAdsAvailable && contentDetailsController.content.value!.adsData!.isBannerAdsAvailable) ...[
                             AutoSliderComponent(
                               height: Get.height * 0.24,
@@ -514,50 +503,95 @@ class ContentDetailsScreen extends StatelessWidget {
                                           style: boldTextStyle(size: 18),
                                         ),
                                         if (contentDetailsController.content.value!.details.isSeasonAvailable)
-                                          Theme(
-                                            data: Theme.of(context).copyWith(
-                                              highlightColor: Colors.transparent,
-                                              hoverColor: Colors.transparent,
-                                              focusColor: Colors.transparent,
-                                              splashColor: Colors.transparent,
-                                              canvasColor: cardColor,
-                                            ),
+                                          InkWell(
+                                            onTap: () {
+                                              showModalBottomSheet(
+                                                context: context,
+                                                backgroundColor: cardColor,
+                                                isScrollControlled: true,
+                                                shape: const RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+                                                ),
+                                                builder: (context) {
+                                                  return Container(
+                                                    padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
+                                                    constraints: BoxConstraints(maxHeight: Get.height * 0.6),
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Text('Season', style: boldTextStyle(size: 20)),
+                                                        16.height,
+                                                        Flexible(
+                                                          child: SingleChildScrollView(
+                                                            child: Column(
+                                                              children: List.generate(
+                                                                contentDetailsController.content.value!.details.seasonList.length,
+                                                                (index) {
+                                                                  SeasonData seasonData = contentDetailsController.content.value!.details.seasonList[index];
+                                                                  bool isSelected = contentDetailsController.selectedSeason.value.id == seasonData.id;
+                                                                  return InkWell(
+                                                                    onTap: () {
+                                                                      Get.back();
+                                                                      if (!isSelected) {
+                                                                        contentDetailsController.setSeasonData(seasonData);
+                                                                      }
+                                                                    },
+                                                                    borderRadius: radius(8),
+                                                                    child: Container(
+                                                                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                                                                      margin: const EdgeInsets.only(bottom: 8),
+                                                                      decoration: boxDecorationDefault(
+                                                                        color: isSelected ? appColorPrimary.withOpacity(0.1) : context.scaffoldBackgroundColor,
+                                                                        borderRadius: radius(8),
+                                                                      ),
+                                                                      child: Row(
+                                                                        children: [
+                                                                          Text(
+                                                                            seasonData.name, 
+                                                                            style: commonW600PrimaryTextStyle(
+                                                                              color: isSelected ? appColorPrimary : textPrimaryColorGlobal,
+                                                                            ),
+                                                                          ).expand(),
+                                                                          if (isSelected) const Icon(Icons.check_circle, color: appColorPrimary, size: 20),
+                                                                        ],
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            borderRadius: radius(6),
                                             child: Container(
                                               height: 36,
                                               decoration: boxDecorationDefault(
                                                 color: cardColor,
                                                 borderRadius: radius(6),
                                               ),
-                                              padding: EdgeInsets.only(left: 12, right: 8),
-                                              child: DropdownButtonHideUnderline(
-                                                child: DropdownButton<SeasonData>(
-                                                  value: contentDetailsController.selectedSeason.value,
-                                                  style: boldTextStyle(color: appColorPrimary, size: 14),
-                                                  dropdownColor: cardColor,
-                                                  borderRadius: radius(8),
-                                                  isDense: true,
-                                                  icon: Icon(Icons.keyboard_arrow_down, size: 20, color: textPrimaryColorGlobal),
-                                                  onChanged: (value) {
-                                                    if (value != null && contentDetailsController.selectedSeason.value.id != value.id) {
-                                                      contentDetailsController.setSeasonData(value);
-                                                    }
-                                                  },
-                                                  items: List.generate(
-                                                    contentDetailsController.content.value!.details.seasonList.length,
-                                                    (index) {
-                                                      SeasonData seasonData = contentDetailsController.content.value!.details.seasonList[index];
-                                                      return DropdownMenuItem<SeasonData>(
-                                                        value: seasonData,
-                                                        child: ConstrainedBox(
-                                                          constraints: BoxConstraints(maxWidth: Get.width * 0.4),
-                                                          child: Marquee(
-                                                            child: Text(seasonData.name, style: commonPrimaryTextStyle()),
-                                                          ),
-                                                        ),
-                                                      );
-                                                    },
+                                              padding: const EdgeInsets.only(left: 16, right: 12),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  ConstrainedBox(
+                                                    constraints: BoxConstraints(maxWidth: Get.width * 0.3),
+                                                    child: Marquee(
+                                                      child: Text(
+                                                        'Season', 
+                                                        style: boldTextStyle(color: appColorPrimary, size: 14),
+                                                      ),
+                                                    ),
                                                   ),
-                                                ),
+                                                  4.width,
+                                                  const Icon(Icons.keyboard_arrow_down, size: 20, color: textPrimaryColorGlobal),
+                                                ],
                                               ),
                                             ),
                                           ),
@@ -570,32 +604,7 @@ class ContentDetailsScreen extends StatelessWidget {
                                       padding: EdgeInsets.zero,
                                       child: Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: List.generate(episodeItems.length + 1, (index) {
-                                          if (index == episodeItems.length) {
-                                            return GestureDetector(
-                                              onTap: () {
-                                                // TODO: Navigate to all episodes screen or show bottom sheet
-                                              },
-                                              child: Container(
-                                                width: Get.width * 0.45,
-                                                margin: const EdgeInsets.only(right: 12),
-                                                decoration: boxDecorationDefault(
-                                                  color: cardColor,
-                                                  borderRadius: radius(6),
-                                                ),
-                                                alignment: Alignment.center,
-                                                child: Column(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Icon(Icons.arrow_forward_ios, size: 24, color: textPrimaryColorGlobal),
-                                                    8.height,
-                                                    Text(locale.value.episodes, style: commonW600PrimaryTextStyle()),
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          }
-
+                                        children: List.generate(episodeItems.length, (index) {
                                           PosterDataModel episodeData = episodeItems[index];
                                           final downloadData = episodeData.downloadData;
                                           final bool isEpisodeDownloadable = downloadData != null &&
@@ -686,14 +695,19 @@ class ContentDetailsScreen extends StatelessWidget {
                                       ),
                                     ),
                                   if (isEpisodeListShimmering)
-                                    AnimatedWrap(
-                                      runSpacing: 12,
-                                      spacing: 12,
-                                      listAnimationType: commonListAnimationType,
-                                      itemCount: 5,
-                                      itemBuilder: (context, index) {
-                                        return EpisodeComponent.shimmer();
-                                      },
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      padding: EdgeInsets.zero,
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: List.generate(4, (index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(right: 12.0),
+                                            child: EpisodeComponent.shimmer(),
+                                          );
+                                        }),
+                                      ),
                                     ),
                                   if (episodeItems.isEmpty && !isEpisodeListShimmering)
                                     AppNoDataWidget(
@@ -730,6 +744,13 @@ class ContentDetailsScreen extends StatelessWidget {
                                 ],
                               );
                             }),
+                          if (!contentDetailsController.argumentData.details.isVideo)
+                            OtherDetailsComponent(
+                              contentData: contentDetailsController.content.value!,
+                              onNavigated: () {
+                                removeTrailer();
+                              },
+                            ),
                           if (contentDetailsController.content.value!.isTrailerAvailable &&
                               (contentDetailsController.content.value!.trailerData.length > 1 || contentDetailsController.content.value!.isVideo)) ...[
                             Column(
