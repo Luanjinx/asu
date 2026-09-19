@@ -48,6 +48,24 @@ class ReviewListScreen extends StatelessWidget {
         scaffoldBackgroundColor: appScreenBackgroundDark,
         onRefresh: reviewCont.onRefresh,
         appBarTitleText: 'Rating & Review',
+        fabWidget: FloatingActionButton(
+          onPressed: () {
+            if (isLoggedIn.value) {
+              reviewCont.onReviewCheck();
+              reviewCont.isEdit(false);
+              Get.bottomSheet(
+                AppDialogWidget(
+                  child: editReviewDialog(context),
+                ),
+                isScrollControlled: true,
+              );
+            } else {
+              Get.to(() => SignInScreen());
+            }
+          },
+          backgroundColor: appColorPrimary,
+          child: const Icon(Icons.add, color: white),
+        ),
         body: Obx(
           () => SnapHelperWidget(
             future: reviewCont.listContentFuture.value,
