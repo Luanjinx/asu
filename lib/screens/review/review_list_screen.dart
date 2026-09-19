@@ -115,7 +115,7 @@ class ReviewListScreen extends StatelessWidget {
                                   isScrollControlled: true,
                                 );
                               } else {
-                                Get.to(() => const SignInScreen());
+                                Get.to(() => SignInScreen());
                               }
                             },
                           ),
@@ -174,6 +174,7 @@ class ReviewListScreen extends StatelessWidget {
                               );
                             },
                           ),
+                        ),
                       ],
                     ),
                   );
