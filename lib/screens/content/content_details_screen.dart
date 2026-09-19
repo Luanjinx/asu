@@ -547,10 +547,9 @@ class ContentDetailsScreen extends StatelessWidget {
                                       ).cornerRadiusWithClipRRect(6),
                                     ),
                                   if (episodeItems.isNotEmpty)
-                                    AnimatedWrap(
-                                      runSpacing: 12,
+                                    HorizontalList(
                                       spacing: 12,
-                                      listAnimationType: commonListAnimationType,
+                                      padding: EdgeInsets.zero,
                                       itemCount: episodeItems.length,
                                       itemBuilder: (context, index) {
                                         PosterDataModel episodeData = episodeItems[index];
