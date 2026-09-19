@@ -132,6 +132,7 @@ class NewAppScaffold extends StatelessWidget {
 
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final Widget? drawer;
+  final Widget? bottomNavigationBar;
 
   final Widget? appBarWidget;
 
@@ -170,7 +171,7 @@ class NewAppScaffold extends StatelessWidget {
     this.titleWidget,
     this.bottomSpace,
     this.isBodyFullScreen = false,
-
+    this.bottomNavigationBar,
   });
 
   Widget child(BuildContext context) {
@@ -300,6 +301,7 @@ class NewAppScaffold extends StatelessWidget {
             : child(context),
         floatingActionButton: floatingActionButton,
         floatingActionButtonLocation: floatingActionButtonLocation,
+        bottomNavigationBar: bottomNavigationBar,
       ),
     );
   }
