@@ -169,17 +169,6 @@ class ContentDetailsScreen extends StatelessWidget {
                         spacing: 16,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (contentDetailsController.content.value!.details.genres.isNotEmpty)
-                            Text(
-                              contentDetailsController.content.value!.details.genres.map((entry) {
-                                final int index = contentDetailsController.content.value!.details.genres.indexOf(entry);
-                                final genre = entry;
-                                return index == contentDetailsController.content.value!.details.genres.length - 1
-                                    ? genre // No suffix for the last item
-                                    : "$genre • "; // Add suffix for other items
-                              }).join(),
-                              style: commonSecondaryTextStyle(),
-                            ),
                           if (contentDetailsController.content.value!.isEpisode &&
                               contentDetailsController.content.value!.details.isTvShowDetailsAvailable &&
                               contentDetailsController.content.value!.details.tvShowData!.name.isNotEmpty)
@@ -189,10 +178,19 @@ class ContentDetailsScreen extends StatelessWidget {
                             ),
                           Text(
                             contentDetailsController.content.value!.details.name,
-                            style: boldTextStyle(size: ResponsiveSize.getFontSize(Constants.labelTextSize)),
+                            style: boldTextStyle(size: 24),
                           ),
+                          if (contentDetailsController.content.value!.details.releaseYear.isNotEmpty || contentDetailsController.content.value!.details.duration.isNotEmpty)
+                            Text(
+                              [
+                                if (contentDetailsController.content.value!.details.releaseYear.isNotEmpty) contentDetailsController.content.value!.details.releaseYear,
+                                if (contentDetailsController.content.value!.details.duration.isNotEmpty) contentDetailsController.content.value!.details.duration,
+                              ].join(' • '),
+                              style: commonSecondaryTextStyle(size: 14),
+                            ),
                           if (contentDetailsController.content.value!.isVideoQualitiesAvailable)
                             watchNowButton(
+                              width: double.infinity,
                               contentData: contentDetailsController.content.value!,
                               callBack: handleWatchNow,
                               pauseCurrentVideo: () {
@@ -202,82 +200,77 @@ class ContentDetailsScreen extends StatelessWidget {
                                 contentDetailsController.onSwipeRefresh();
                               },
                             ),
-                          if (contentDetailsController.content.value!.details.description.isNotEmpty) ...[
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: [
+                              ...contentDetailsController.content.value!.details.genres.map((genre) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: textSecondaryColorGlobal.withOpacity(0.5)),
+                                    borderRadius: radius(6),
+                                  ),
+                                  child: Text(genre, style: commonSecondaryTextStyle(size: 12)),
+                                );
+                              }),
+                              if (contentDetailsController.content.value!.details.language.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: textSecondaryColorGlobal.withOpacity(0.5)),
+                                    borderRadius: radius(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.language, size: 14, color: appColorPrimary),
+                                      4.width,
+                                      Text(contentDetailsController.content.value!.details.language.capitalizeFirst!, style: commonSecondaryTextStyle(size: 12)),
+                                    ],
+                                  ),
+                                ),
+                              if (contentDetailsController.content.value!.details.imdbRating.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: textSecondaryColorGlobal.withOpacity(0.5)),
+                                    borderRadius: radius(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconWidget(imgPath: Assets.iconsStarFill, color: yellowColor, size: 14),
+                                      4.width,
+                                      Text(contentDetailsController.content.value!.details.imdbRating, style: commonSecondaryTextStyle(size: 12)),
+                                    ],
+                                  ),
+                                ),
+                              if (contentDetailsController.content.value!.details.contentRating.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: textSecondaryColorGlobal.withOpacity(0.5)),
+                                    borderRadius: radius(6),
+                                  ),
+                                  child: Text(contentDetailsController.content.value!.details.contentRating, style: commonSecondaryTextStyle(size: 12)),
+                                ),
+                              if (contentDetailsController.content.value!.details.isAgeRestrictedContent.getBoolInt())
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: textSecondaryColorGlobal.withOpacity(0.5)),
+                                    borderRadius: radius(6),
+                                  ),
+                                  child: Text(locale.value.ua18.suffixText(value: "+"), style: commonSecondaryTextStyle(size: 12)),
+                                ),
+                            ],
+                          ),
+                          if (contentDetailsController.content.value!.details.description.isNotEmpty)
                             readMoreTextWidget(
                               contentDetailsController.content.value!.details.description,
                               trimLines: 3,
                             ),
-                          ],
-                          Wrap(
-                            spacing: 12,
-                            runSpacing: 8,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              if (contentDetailsController.content.value!.details.duration.isNotEmpty)
-                                TextIcon(
-                                  text: contentDetailsController.content.value!.details.duration,
-                                  edgeInsets: EdgeInsets.zero,
-                                  textStyle: commonSecondaryTextStyle(),
-                                  prefix: IconWidget(
-                                    imgPath: Assets.iconsClock,
-                                    size: 14,
-                                    color: secondaryTextColor,
-                                  ),
-                                ),
-                              if (contentDetailsController.content.value!.details.releaseYear.isNotEmpty)
-                                TextIcon(
-                                  text: contentDetailsController.content.value!.details.releaseYear,
-                                  edgeInsets: EdgeInsets.zero,
-                                  textStyle: commonSecondaryTextStyle(),
-                                  prefix: IconWidget(
-                                    imgPath: Assets.iconsCalendar,
-                                    size: 14,
-                                    color: secondaryTextColor,
-                                  ),
-                                ),
-                              if (contentDetailsController.content.value!.details.language.isNotEmpty)
-                                TextIcon(
-                                  text: contentDetailsController.content.value!.details.language.capitalizeFirst!,
-                                  edgeInsets: EdgeInsets.zero,
-                                  textStyle: commonSecondaryTextStyle(),
-                                  prefix: IconWidget(
-                                    imgPath: Assets.iconsTranslate,
-                                    size: 14,
-                                    color: secondaryTextColor,
-                                  ),
-                                ),
-                              if (contentDetailsController.content.value!.details.imdbRating.isNotEmpty)
-                                TextIcon(
-                                  text: contentDetailsController.content.value!.details.imdbRating.suffixText(value: ' (${locale.value.imdb})'),
-                                  edgeInsets: EdgeInsets.zero,
-                                  textStyle: commonSecondaryTextStyle(),
-                                  prefix: IconWidget(
-                                    imgPath: Assets.iconsStarFill,
-                                    color: yellowColor,
-                                    size: 14,
-                                  ),
-                                ),
-                              if (contentDetailsController.content.value!.details.contentRating.isNotEmpty)
-                                TextIcon(
-                                  text: contentDetailsController.content.value!.details.contentRating,
-                                  edgeInsets: EdgeInsets.zero,
-                                  textStyle: commonSecondaryTextStyle(),
-                                ),
-                              if (contentDetailsController.content.value!.details.isAgeRestrictedContent.getBoolInt())
-                                Container(
-                                  width: 60,
-                                  alignment: Alignment.center,
-                                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                                  decoration: boxDecorationDefault(color: context.cardColor, borderRadius: radius(4)),
-                                  child: Marquee(
-                                    child: Text(
-                                      locale.value.ua18.suffixText(value: "+"),
-                                      style: commonSecondaryTextStyle(),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
                           Row(
                             spacing: 16,
                             children: [
