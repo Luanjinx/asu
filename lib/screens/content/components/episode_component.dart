@@ -17,6 +17,7 @@ import '../../downloads/download_screen.dart';
 class EpisodeComponent extends StatelessWidget {
   final PosterDataModel episodeData;
   final bool isShimmer;
+  final int? episodeIndex;
 
   final bool isSelected;
   final VoidCallback? onDownloadTap;
@@ -32,6 +33,7 @@ class EpisodeComponent extends StatelessWidget {
   EpisodeComponent({
     super.key,
     required this.episodeData,
+    this.episodeIndex,
     this.isSelected = false,
     this.onDownloadTap,
     this.onPauseTap,
@@ -108,11 +110,8 @@ class EpisodeComponent extends StatelessWidget {
       );
     }
 
-    return Container(
+    return SizedBox(
       width: Get.width * 0.45,
-      decoration: boxDecorationDefault(
-        color: Colors.transparent,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -203,7 +202,9 @@ class EpisodeComponent extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    episodeData.details.name.capitalizeEachWord(),
+                    episodeIndex != null 
+                        ? 'Ep ${episodeIndex! + 1}: ${episodeData.details.name.capitalizeEachWord()}'
+                        : episodeData.details.name.capitalizeEachWord(),
                     style: commonW600PrimaryTextStyle(size: 14, color: isSelected ? appColorPrimary : textPrimaryColorGlobal),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
