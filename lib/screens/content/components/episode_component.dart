@@ -68,44 +68,29 @@ class EpisodeComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isShimmer) {
-      return Container(
-        width: Get.width,
-        decoration: boxDecorationDefault(
-          color: cardColor,
-          borderRadius: radius(6),
-        ),
+      return SizedBox(
+        width: Get.width * 0.45,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 12,
           children: [
-            ShimmerWidget(
-              height: Get.height * 0.16,
-              width: Get.width,
-              topLeftRadius: 6,
-              topRightRadius: 6,
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: ShimmerWidget(
+                width: double.infinity,
+                height: double.infinity,
+                radius: 6,
+              ),
             ),
             Column(
-              spacing: 12,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                4.height,
                 ShimmerWidget(
                   height: Constants.shimmerTextSize,
-                  width: Get.width / 3.5,
-                  radius: 6,
-                ),
-                ShimmerWidget(
-                  height: Constants.shimmerTextSize,
-                  width: Get.width,
-                  radius: 6,
-                ),
-                ShimmerWidget(
-                  height: Constants.shimmerTextSize,
-                  width: Get.width,
+                  width: Get.width * 0.3,
                   radius: 6,
                 ),
               ],
-            ).paddingSymmetric(horizontal: 12),
+            ).paddingSymmetric(vertical: 8),
           ],
         ),
       );
@@ -203,9 +188,7 @@ class EpisodeComponent extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    episodeIndex != null 
-                        ? 'Ep ${episodeIndex! + 1}: ${episodeData.details.name.capitalizeEachWord()}'
-                        : episodeData.details.name.capitalizeEachWord(),
+                    episodeData.details.name.capitalizeEachWord(),
                     style: commonW600PrimaryTextStyle(size: 14, color: isSelected ? appColorPrimary : textPrimaryColorGlobal),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
