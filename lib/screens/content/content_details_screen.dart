@@ -547,94 +547,125 @@ class ContentDetailsScreen extends StatelessWidget {
                                       ).cornerRadiusWithClipRRect(6),
                                     ),
                                   if (episodeItems.isNotEmpty)
-                                    HorizontalList(
-                                      spacing: 12,
+                                    SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      physics: const AlwaysScrollableScrollPhysics(),
                                       padding: EdgeInsets.zero,
-                                      itemCount: episodeItems.length,
-                                      itemBuilder: (context, index) {
-                                        PosterDataModel episodeData = episodeItems[index];
-                                        final downloadData = episodeData.downloadData;
-                                        final bool isEpisodeDownloadable = downloadData != null &&
-                                            downloadData.downloadEnable.getBoolInt() &&
-                                            downloadData.isDownloadQualitiesAvailable &&
-                                            episodeData.details.access != MovieAccess.payPerView;
-                                        return GestureDetector(
-                                          onTap: () {
-                                            if (contentDetailsController.isLoading.value) return;
-                                            removeTrailer();
-                                            contentDetailsController.playNextEpisode(episodeData);
-                                          },
-                                          child: Obx(
-                                            () {
-                                              final bool isEpisodeDownloading = contentDetailsController.activeDownloads.contains(episodeData.id);
-                                              final double episodeDownloadProgress = contentDetailsController.episodeProgress[episodeData.id] ?? 0.0;
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: List.generate(episodeItems.length + 1, (index) {
+                                          if (index == episodeItems.length) {
+                                            return GestureDetector(
+                                              onTap: () {
+                                                // TODO: Navigate to all episodes screen or show bottom sheet
+                                              },
+                                              child: Container(
+                                                width: Get.width * 0.45,
+                                                margin: const EdgeInsets.only(right: 12),
+                                                decoration: boxDecorationDefault(
+                                                  color: cardColor,
+                                                  borderRadius: radius(6),
+                                                ),
+                                                alignment: Alignment.center,
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.arrow_forward_ios, size: 24, color: textPrimaryColorGlobal),
+                                                    8.height,
+                                                    Text(locale.value.episodes, style: commonW600PrimaryTextStyle()),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }
 
-                                              final bool isEpisodeDownloaded = contentDetailsController.downloadedEpisodeIds.contains(episodeData.id);
-                                              final bool isEpisodePaused = contentDetailsController.episodeStates[episodeData.id] == DownloadControlState.paused;
+                                          PosterDataModel episodeData = episodeItems[index];
+                                          final downloadData = episodeData.downloadData;
+                                          final bool isEpisodeDownloadable = downloadData != null &&
+                                              downloadData.downloadEnable.getBoolInt() &&
+                                              downloadData.isDownloadQualitiesAvailable &&
+                                              episodeData.details.access != MovieAccess.payPerView;
+                                          return Padding(
+                                            padding: const EdgeInsets.only(right: 12.0),
+                                            child: GestureDetector(
+                                              onTap: () {
+                                                if (contentDetailsController.isLoading.value) return;
+                                                removeTrailer();
+                                                contentDetailsController.playNextEpisode(episodeData);
+                                              },
+                                              child: Obx(
+                                                () {
+                                                  final bool isEpisodeDownloading = contentDetailsController.activeDownloads.contains(episodeData.id);
+                                                  final double episodeDownloadProgress = contentDetailsController.episodeProgress[episodeData.id] ?? 0.0;
 
-                                              return EpisodeComponent(
-                                                episodeData: episodeData,
-                                                isSelected: contentDetailsController.currentEpisodeIndex.value == index,
-                                                showDownloadButton: isEpisodeDownloadable && contentDetailsController.currentEpisodeIndex.value != index,
-                                                isDownloaded: isEpisodeDownloaded,
-                                                isDownloading: isEpisodeDownloading,
-                                                isPaused: isEpisodePaused,
-                                                downloadProgress: episodeDownloadProgress,
-                                                onDownloadTap: isEpisodeDownloadable
-                                                    ? () {
-                                                        if (contentDetailsController.isLoading.value) return;
-                                                        final episodeDownloadData = downloadData;
-                                                        if (!episodeDownloadData.downloadEnable.getBoolInt()) return;
-                                                        removeTrailer();
-                                                        doIfLogin(
-                                                          onLoggedIn: () {
-                                                            if (selectedAccountProfile.value.isChildProfile.validate() == 1) {
-                                                              if(contentDetailsController.content.value!.details.isAgeRestrictedContent == 1) {
-                                                                Get.back();
-                                                                return;
-                                                              }
-                                                            }
-                                                            if (isEpisodeDownloaded)
-                                                              Get.to(() => DownloadScreen());
-                                                            else
-                                                              Get.bottomSheet(
-                                                                AppDialogWidget(
-                                                                  child: DownloadQualitySelectionComponent(
-                                                                    hasContentAccess: episodeData.details.hasContentAccess.getBoolInt(),
-                                                                    availableDownloadQualities: episodeDownloadData.downloadQualities,
-                                                                    onQualitySelected: (DownloadQualities selectedQuality) {
-                                                                      contentDetailsController.selectedDownloadQuality(selectedQuality);
-                                                                      episodeData.details.thumbnailImage = episodeData.posterImage;
-                                                                      episodeData.details.tvShowData = contentDetailsController.content.value!.isTvShow
-                                                                          ? TvShowData(
-                                                                              id: contentDetailsController.content.value!.id,
-                                                                              name: contentDetailsController.content.value!.details.name,
-                                                                            )
-                                                                          : contentDetailsController.content.value!.details.tvShowData;
-                                                                      episodeData.details.seasonList = contentDetailsController.content.value!.details.seasonList;
-                                                                      final ContentModel episodeContent = ContentModel(
-                                                                        id: episodeData.id,
-                                                                        details: episodeData.details,
-                                                                        downloadData: episodeDownloadData,
-                                                                        trailerData: episodeData.trailerData,
-                                                                      );
-                                                                      contentDetailsController.downloadContent(episodeData.id, episodeContent, episodeData.id);
-                                                                    },
-                                                                  ),
-                                                                ),
-                                                              );
-                                                          },
-                                                        );
-                                                      }
-                                                    : null,
-                                                onPauseTap: () => contentDetailsController.pauseEpisodeDownload(episodeData.id),
-                                                onResumeTap: () => contentDetailsController.resumePausedEpisodeDownload(episodeData.id),
-                                                onCancelTap: () => contentDetailsController.cancelEpisodeDownload(episodeData.id),
-                                              );
-                                            },
-                                          ),
-                                        );
-                                      },
+                                                  final bool isEpisodeDownloaded = contentDetailsController.downloadedEpisodeIds.contains(episodeData.id);
+                                                  final bool isEpisodePaused = contentDetailsController.episodeStates[episodeData.id] == DownloadControlState.paused;
+
+                                                  return EpisodeComponent(
+                                                    episodeData: episodeData,
+                                                    isSelected: contentDetailsController.currentEpisodeIndex.value == index,
+                                                    showDownloadButton: isEpisodeDownloadable && contentDetailsController.currentEpisodeIndex.value != index,
+                                                    isDownloaded: isEpisodeDownloaded,
+                                                    isDownloading: isEpisodeDownloading,
+                                                    isPaused: isEpisodePaused,
+                                                    downloadProgress: episodeDownloadProgress,
+                                                    onDownloadTap: isEpisodeDownloadable
+                                                        ? () {
+                                                            if (contentDetailsController.isLoading.value) return;
+                                                            final episodeDownloadData = downloadData;
+                                                            if (!episodeDownloadData.downloadEnable.getBoolInt()) return;
+                                                            removeTrailer();
+                                                            doIfLogin(
+                                                              onLoggedIn: () {
+                                                                if (selectedAccountProfile.value.isChildProfile.validate() == 1) {
+                                                                  if(contentDetailsController.content.value!.details.isAgeRestrictedContent == 1) {
+                                                                    Get.back();
+                                                                    return;
+                                                                  }
+                                                                }
+                                                                if (isEpisodeDownloaded)
+                                                                  Get.to(() => DownloadScreen());
+                                                                else
+                                                                  Get.bottomSheet(
+                                                                    AppDialogWidget(
+                                                                      child: DownloadQualitySelectionComponent(
+                                                                        hasContentAccess: episodeData.details.hasContentAccess.getBoolInt(),
+                                                                        availableDownloadQualities: episodeDownloadData.downloadQualities,
+                                                                        onQualitySelected: (DownloadQualities selectedQuality) {
+                                                                          contentDetailsController.selectedDownloadQuality(selectedQuality);
+                                                                          episodeData.details.thumbnailImage = episodeData.posterImage;
+                                                                          episodeData.details.tvShowData = contentDetailsController.content.value!.isTvShow
+                                                                              ? TvShowData(
+                                                                                  id: contentDetailsController.content.value!.id,
+                                                                                  name: contentDetailsController.content.value!.details.name,
+                                                                                )
+                                                                              : contentDetailsController.content.value!.details.tvShowData;
+                                                                          episodeData.details.seasonList = contentDetailsController.content.value!.details.seasonList;
+                                                                          final ContentModel episodeContent = ContentModel(
+                                                                            id: episodeData.id,
+                                                                            details: episodeData.details,
+                                                                            downloadData: episodeDownloadData,
+                                                                            trailerData: episodeData.trailerData,
+                                                                          );
+                                                                          contentDetailsController.downloadContent(episodeData.id, episodeContent, episodeData.id);
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                              },
+                                                            );
+                                                          }
+                                                        : null,
+                                                    onPauseTap: () => contentDetailsController.pauseEpisodeDownload(episodeData.id),
+                                                    onResumeTap: () => contentDetailsController.resumePausedEpisodeDownload(episodeData.id),
+                                                    onCancelTap: () => contentDetailsController.cancelEpisodeDownload(episodeData.id),
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                      ),
                                     ),
                                   if (isEpisodeListShimmering)
                                     AnimatedWrap(
