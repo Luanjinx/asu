@@ -12,6 +12,8 @@ class RatingSummaryCard extends StatelessWidget {
   final List<ReviewModel> reviews;
   final bool isLoggedIn;
   final VoidCallback onRateAction;
+  final bool showRateAction;
+  final bool isCard;
 
   const RatingSummaryCard({
     super.key,
@@ -20,6 +22,8 @@ class RatingSummaryCard extends StatelessWidget {
     required this.reviews,
     required this.isLoggedIn,
     required this.onRateAction,
+    this.showRateAction = true,
+    this.isCard = true,
   });
 
   @override
@@ -44,11 +48,11 @@ class RatingSummaryCard extends StatelessWidget {
     double pct1 = calculableReviews > 0 ? (count1 / calculableReviews) : 0;
 
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: boxDecorationDefault(
+      padding: isCard ? const EdgeInsets.all(16) : EdgeInsets.zero,
+      decoration: isCard ? boxDecorationDefault(
         color: context.cardColor,
         borderRadius: radius(12),
-      ),
+      ) : null,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -58,7 +62,7 @@ class RatingSummaryCard extends StatelessWidget {
             children: [
               Text(
                 averageRating.toStringAsFixed(1).replaceAll('.0', ''),
-                style: boldTextStyle(size: 48, color: appColorPrimary),
+                style: boldTextStyle(size: 48, color: isCard ? appColorPrimary : Colors.white),
               ),
               RatingBarWidget(
                 onRatingChanged: (v) {},
@@ -77,12 +81,14 @@ class RatingSummaryCard extends StatelessWidget {
           ),
           
           16.width,
-          Container(
-            height: 80,
-            width: 1,
-            color: textSecondaryColorGlobal.withOpacity(0.2),
-          ),
-          16.width,
+          if (showRateAction) ...[
+            Container(
+              height: 80,
+              width: 1,
+              color: textSecondaryColorGlobal.withOpacity(0.2),
+            ),
+            16.width,
+          ],
 
           // Middle side: Distribution Bars
           Expanded(
@@ -98,19 +104,19 @@ class RatingSummaryCard extends StatelessWidget {
             ),
           ),
 
-          16.width,
-          Container(
-            height: 80,
-            width: 1,
-            color: textSecondaryColorGlobal.withOpacity(0.2),
-          ),
-          16.width,
+          if (showRateAction) ...[
+            16.width,
+            Container(
+              height: 80,
+              width: 1,
+              color: textSecondaryColorGlobal.withOpacity(0.2),
+            ),
+            16.width,
 
-          // Right side: Rate action
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isLoggedIn) ...[
+            // Right side: Rate action
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Text('Rate this', style: secondaryTextStyle(size: 12)),
                 4.height,
                 RatingBarWidget(
@@ -121,28 +127,25 @@ class RatingSummaryCard extends StatelessWidget {
                   inActiveColor: textSecondaryColorGlobal.withOpacity(0.5),
                   disable: true,
                 ),
-              ] else ...[
-                Text('Login to rate', style: secondaryTextStyle(size: 10)),
-                Text('this movie', style: secondaryTextStyle(size: 10)),
-              ],
-              8.height,
-              InkWell(
-                onTap: onRateAction,
-                borderRadius: radius(24),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: appColorPrimary),
-                    borderRadius: radius(24),
-                  ),
-                  child: Text(
-                    isLoggedIn ? 'Rate Now' : 'Login',
-                    style: boldTextStyle(size: 12, color: appColorPrimary),
+                8.height,
+                InkWell(
+                  onTap: onRateAction,
+                  borderRadius: radius(24),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: appColorPrimary),
+                      borderRadius: radius(24),
+                    ),
+                    child: Text(
+                      'Rate Now',
+                      style: boldTextStyle(size: 12, color: appColorPrimary),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
