@@ -49,6 +49,7 @@ class EpisodeComponent extends StatelessWidget {
 
   EpisodeComponent.shimmer({super.key})
       : episodeData = PosterDataModel(details: ContentData()),
+        episodeIndex = null,
         isSelected = false,
         showDownloadButton = false,
         onDownloadTap = null,
