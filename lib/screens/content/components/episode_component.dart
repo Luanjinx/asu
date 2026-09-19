@@ -112,34 +112,38 @@ class EpisodeComponent extends StatelessWidget {
       width: Get.width * 0.45,
       decoration: boxDecorationDefault(
         color: Colors.transparent,
-        borderRadius: radius(6),
-        border: Border.all(
-          color: isSelected ? appColorPrimary : Colors.transparent,
-          width: 0.5,
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              Stack(
-                alignment: AlignmentGeometry.center,
+          Container(
+            decoration: boxDecorationDefault(
+              color: Colors.transparent,
+              borderRadius: radius(6),
+              border: Border.all(
+                color: isSelected ? appColorPrimary : Colors.transparent,
+                width: 1.5,
+              ),
+            ),
+            child: ClipRRect(
+              borderRadius: radius(5),
+              child: Stack(
                 children: [
-                  AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: CachedImageWidget(
-                      url: episodeData.posterImage,
-                      width: double.infinity,
-                      height: double.infinity,
-                      fit: BoxFit.cover,
-                      alignment: Alignment.topCenter,
-                      topLeftRadius: 6,
-                      topRightRadius: 6,
-                      bottomLeftRadius: 6,
-                      bottomRightRadius: 6,
-                    ),
-                  ),
+                  Stack(
+                    alignment: AlignmentGeometry.center,
+                    children: [
+                      AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: CachedImageWidget(
+                          url: episodeData.posterImage,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          alignment: Alignment.topCenter,
+                          topLeftRadius: 0,
+                          topRightRadius: 0,
+                        ),
+                      ),
                   if (isSelected)
                     Align(
                       alignment: Alignment.bottomCenter,
@@ -154,57 +158,9 @@ class EpisodeComponent extends StatelessWidget {
                         ),
                       ),
                     ),
-                  // Removed gradient container
-                ],
-              ),
-              if (episodeData.details.seasonId != null || episodeData.details.episodeNumber != null)
-                PositionedDirectional(
-                  top: 4,
-                  start: 4,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: boxDecorationDefault(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: radius(4),
-                    ),
-                    child: Text(
-                      'S${(episodeData.details.seasonId ?? 1).toString().padLeft(2, '0')}E${(episodeData.details.episodeNumber ?? 1).toString().padLeft(2, '0')}',
-                      style: boldTextStyle(color: Colors.white, size: 10),
-                    ),
+                      // Removed gradient container
+                    ],
                   ),
-                ),
-              if (episodeData.details.releaseDate.isNotEmpty)
-                PositionedDirectional(
-                  top: 4,
-                  end: 4,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: boxDecorationDefault(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: radius(4),
-                    ),
-                    child: Text(
-                      episodeData.details.releaseDate,
-                      style: boldTextStyle(color: Colors.white, size: 10),
-                    ),
-                  ),
-                ),
-              if (episodeData.details.duration.isNotEmpty)
-                PositionedDirectional(
-                  bottom: 8,
-                  end: 4,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                    decoration: boxDecorationDefault(
-                      color: Colors.black.withOpacity(0.6),
-                      borderRadius: radius(4),
-                    ),
-                    child: Text(
-                      episodeData.details.duration,
-                      style: boldTextStyle(color: Colors.white, size: 10),
-                    ),
-                  ),
-                ),
               if (episodeData.details.duration.isNotEmpty && (episodeData.details.duration != "00:00:00" && episodeData.details.watchedDuration != "00:00:01"))
                 PositionedDirectional(
                   bottom: 4,
@@ -220,22 +176,24 @@ class EpisodeComponent extends StatelessWidget {
                     backgroundColor: appColorSecondary,
                   ),
                 ),
-              if (episodeData.details.access == MovieAccess.paidAccess && !episodeData.details.hasContentAccess.getBoolInt())
-                PositionedDirectional(
-                  top: 4,
-                  start: 4,
-                  child: premiumTagWidget(),
-                )
-              else if (episodeData.details.access == MovieAccess.payPerView || episodeData.details.access == MovieAccess.oneTimePurchase)
-                PositionedDirectional(
-                  top: 4,
-                  start: 4,
-                  child: rentalTagWidget(
-                    hasAccess: episodeData.details.hasContentAccess.getBoolInt(),
-                    size: 8,
-                  ),
-                )
-            ],
+                  if (episodeData.details.access == MovieAccess.paidAccess && !episodeData.details.hasContentAccess.getBoolInt())
+                    PositionedDirectional(
+                      top: 4,
+                      end: 4,
+                      child: premiumTagWidget(),
+                    )
+                  else if (episodeData.details.access == MovieAccess.payPerView || episodeData.details.access == MovieAccess.oneTimePurchase)
+                    PositionedDirectional(
+                      top: 4,
+                      end: 4,
+                      child: rentalTagWidget(
+                        hasAccess: episodeData.details.hasContentAccess.getBoolInt(),
+                        size: 8,
+                      ),
+                    )
+                ],
+              ),
+            ),
           ),
           Column(
             spacing: 8,
@@ -246,122 +204,14 @@ class EpisodeComponent extends StatelessWidget {
                 children: [
                   Text(
                     episodeData.details.name.capitalizeEachWord(),
-                    style: commonW600PrimaryTextStyle(size: 14),
+                    style: commonW600PrimaryTextStyle(size: 14, color: isSelected ? appColorPrimary : textPrimaryColorGlobal),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ).expand(),
-                  if (showDownloadButton)
-                    IconButton(
-                      key: _downloadButtonKey,
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () async {
-                        // Show control menu when downloading or paused
-                        if (isDownloading || isPaused) {
-                          final overlay = Overlay.of(context);
-                          final buttonContext = _downloadButtonKey?.currentContext;
-
-                          if (buttonContext == null) return;
-
-                          final RenderBox buttonBox = buttonContext.findRenderObject() as RenderBox;
-                          final RenderBox overlayBox = overlay.context.findRenderObject() as RenderBox;
-
-                          final RelativeRect position = RelativeRect.fromRect(
-                            Rect.fromPoints(
-                              buttonBox.localToGlobal(Offset.zero, ancestor: overlayBox),
-                              buttonBox.localToGlobal(buttonBox.size.bottomRight(Offset.zero), ancestor: overlayBox),
-                            ),
-                            Offset.zero & overlayBox.size,
-                          );
-
-                          final selected = await showMenu<String>(
-                            context: context,
-                            position: position,
-                            items: [
-                              if (isPaused)
-                                PopupMenuItem(
-                                  value: 'resume',
-                                  child: Text(locale.value.resume),
-                                )
-                              else
-                                PopupMenuItem(
-                                  value: 'pause',
-                                  child: Text(locale.value.pause),
-                                ),
-                              PopupMenuItem(
-                                value: 'cancel',
-                                child: Text(locale.value.cancel),
-                              ),
-                            ],
-                          );
-
-                          if (selected == 'pause') {
-                            await onPauseTap?.call();
-                          } else if (selected == 'resume') {
-                            await onResumeTap?.call();
-                          } else if (selected == 'cancel') {
-                            await onCancelTap?.call();
-                          }
-                          return;
-                        }
-
-                        if (isDownloaded) {
-                          await Get.to(() => DownloadScreen());
-                          if (Get.isRegistered<ContentDetailsController>()) {
-                            Get.find<ContentDetailsController>().refreshDownloadStatus();
-                          }
-                        } else {
-                          onDownloadTap?.call();
-                        }
-                      },
-                      icon: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (isDownloading)
-                            SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                value: (downloadProgress / 100).clamp(0.0, 1.0),
-                                strokeWidth: 2,
-                                color: appColorPrimary,
-                              ),
-                            )
-                          else if (isPaused)
-                            Icon(
-                              Icons.pause_circle_filled,
-                              color: appColorPrimary,
-                              size: 20,
-                            )
-                          else
-                            IconWidget(
-                              imgPath: isDownloaded ? Assets.iconsCheck : Assets.iconsDownload,
-                              color: isDownloaded ? appColorPrimary : primaryIconColor,
-                              size: 20,
-                            ),
-                          if (isDownloading)
-                            Text(
-                              '${downloadProgress.clamp(0, 100).toStringAsFixed(0)}%',
-                              style: commonPrimaryTextStyle(size: 10),
-                            )
-                          else if (isPaused)
-                            Text(
-                              locale.value.paused,
-                              style: commonPrimaryTextStyle(size: 10),
-                            ),
-                        ],
-                      ),
-                    ),
                 ],
               ),
-              if (episodeData.details.description.isNotEmpty)
-                readMoreTextWidget(
-                  episodeData.details.description,
-                  trimLines: 2,
-                ),
             ],
-          ).paddingSymmetric(horizontal: 0, vertical: 8),
+          ).paddingSymmetric(vertical: 8),
         ],
       ),
     );
