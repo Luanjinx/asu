@@ -16,14 +16,24 @@ import '../../utils/common_base.dart';
 import '../../utils/empty_error_state_widget.dart';
 import 'model/review_model.dart';
 
+import 'package:streamit_laravel/screens/content/components/rating_summary_card.dart';
+import 'package:streamit_laravel/screens/auth/sign_in/sign_in_screen.dart';
+import 'package:streamit_laravel/components/cached_image_widget.dart';
+
 class ReviewListScreen extends StatelessWidget {
   final String movieName;
   final String contentType;
+  final String? posterImage;
+  final double averageRating;
+  final int totalReviews;
 
   ReviewListScreen({
     super.key,
     required this.movieName,
     required this.contentType,
+    this.posterImage,
+    this.averageRating = 0.0,
+    this.totalReviews = 0,
   });
 
   final ReviewListController reviewCont = Get.find<ReviewListController>();
@@ -37,11 +47,11 @@ class ReviewListScreen extends StatelessWidget {
         isLoading: (reviewCont.isLoading.value).obs,
         scaffoldBackgroundColor: appScreenBackgroundDark,
         onRefresh: reviewCont.onRefresh,
-        appBarTitleText: locale.value.reviewsOf(movieName),
+        appBarTitleText: 'Rating & Review',
         body: Obx(
           () => SnapHelperWidget(
             future: reviewCont.listContentFuture.value,
-            loadingWidget: const ShimmerReviewList(),
+            loadingWidget: ShimmerReviewList(),
             errorBuilder: (error) {
               return AppNoDataWidget(
                 title: error,
@@ -53,38 +63,119 @@ class ReviewListScreen extends StatelessWidget {
             onSuccess: (res) {
               return Obx(
                 () {
-                  if (reviewCont.listContent.isEmpty)
-                    AppNoDataWidget(
-                      title: locale.value.oppsLooksLikeYouReview,
-                      retryText: locale.value.retry,
-                      imageWidget: const EmptyStateWidget(),
-                      onRetry: reviewCont.onRetry,
-                    ).paddingSymmetric(horizontal: 32).visible(!reviewCont.isLoading.value);
-                  return AnimatedWrap(
-                    runSpacing: 12,
-                    spacing: 12,
-                    itemCount: reviewCont.listContent.length,
-                    listAnimationType: commonListAnimationType,
-                    itemBuilder: (ctx, index) {
-                      ReviewModel reviewDetail = reviewCont.listContent[index];
-                      return ReviewCard(
-                        reviewDetail: reviewDetail,
-                        isLoggedInUser: reviewDetail.userId == loginUserData.value.id,
-                        editCallback: () async {
-                          reviewCont.onReviewCheck();
-                          reviewCont.isEdit(true);
-                          Get.bottomSheet(
-                            AppDialogWidget(
-                              child: editReviewDialog(context),
-                            ),
-                            isScrollControlled: true,
-                          );
-                        },
-                        deleteCallback: () {
-                          reviewCont.deleteReview(reviewDetail.id);
-                        },
-                      );
-                    },
+                  return SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Movie Header
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                          child: Row(
+                            children: [
+                              if (posterImage != null && posterImage!.isNotEmpty)
+                                ClipRRect(
+                                  borderRadius: radius(8),
+                                  child: CachedImageWidget(
+                                    url: posterImage!,
+                                    height: 80,
+                                    width: 60,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              12.width,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(movieName, style: boldTextStyle(size: 18)),
+                                    4.height,
+                                    Text('Ratings & Reviews', style: secondaryTextStyle(size: 14)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Rating Summary Card
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: RatingSummaryCard(
+                            averageRating: averageRating,
+                            totalReviews: totalReviews,
+                            reviews: reviewCont.listContent,
+                            isLoggedIn: isLoggedIn.value,
+                            onRateAction: () {
+                              if (isLoggedIn.value) {
+                                reviewCont.onReviewCheck();
+                                reviewCont.isEdit(false);
+                                Get.bottomSheet(
+                                  AppDialogWidget(
+                                    child: editReviewDialog(context),
+                                  ),
+                                  isScrollControlled: true,
+                                );
+                              } else {
+                                Get.to(() => const SignInScreen());
+                              }
+                            },
+                          ),
+                        ),
+                        24.height,
+                        // Reviews List
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Reviews (${reviewCont.listContent.length})', style: boldTextStyle(size: 16)),
+                              Text('Most Recent', style: secondaryTextStyle(size: 12)),
+                            ],
+                          ),
+                        ),
+                        16.height,
+                        if (reviewCont.listContent.isEmpty)
+                          Column(
+                            children: [
+                              32.height,
+                              Icon(Icons.star_border, size: 64, color: textSecondaryColorGlobal.withOpacity(0.5)),
+                              16.height,
+                              Text('No reviews yet', style: boldTextStyle(size: 18)),
+                              8.height,
+                              Text('Be the first to rate this movie', style: secondaryTextStyle(size: 14)),
+                              32.height,
+                            ],
+                          ).center().visible(!reviewCont.isLoading.value)
+                        else
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: AnimatedWrap(
+                              runSpacing: 12,
+                              spacing: 12,
+                              itemCount: reviewCont.listContent.length,
+                              listAnimationType: commonListAnimationType,
+                              itemBuilder: (ctx, index) {
+                              ReviewModel reviewDetail = reviewCont.listContent[index];
+                              return ReviewCard(
+                                reviewDetail: reviewDetail,
+                                isLoggedInUser: reviewDetail.userId == loginUserData.value.id,
+                                editCallback: () async {
+                                  reviewCont.onReviewCheck();
+                                  reviewCont.isEdit(true);
+                                  Get.bottomSheet(
+                                    AppDialogWidget(
+                                      child: editReviewDialog(context),
+                                    ),
+                                    isScrollControlled: true,
+                                  );
+                                },
+                                deleteCallback: () {
+                                  reviewCont.deleteReview(reviewDetail.id);
+                                },
+                              );
+                            },
+                          ),
+                      ],
+                    ),
                   );
                 },
               );
