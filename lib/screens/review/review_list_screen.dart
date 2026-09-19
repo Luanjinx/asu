@@ -48,24 +48,20 @@ class ReviewListScreen extends StatelessWidget {
         scaffoldBackgroundColor: appScreenBackgroundDark,
         onRefresh: reviewCont.onRefresh,
         appBarTitleText: 'Rating & Review',
-        fabWidget: FloatingActionButton(
-          onPressed: () {
-            if (isLoggedIn.value) {
-              reviewCont.onReviewCheck();
-              reviewCont.isEdit(false);
-              Get.bottomSheet(
-                AppDialogWidget(
-                  child: editReviewDialog(context),
+        bottomNavigationBar: !isLoggedIn.value
+            ? Padding(
+                padding: const EdgeInsets.all(16),
+                child: AppButton(
+                  width: double.infinity,
+                  text: 'Login to Review',
+                  textStyle: boldTextStyle(color: Colors.black),
+                  color: Colors.white,
+                  onTap: () {
+                    Get.to(() => SignInScreen());
+                  },
                 ),
-                isScrollControlled: true,
-              );
-            } else {
-              Get.to(() => SignInScreen());
-            }
-          },
-          backgroundColor: appColorPrimary,
-          child: const Icon(Icons.add, color: white),
-        ),
+              )
+            : null,
         body: Obx(
           () => SnapHelperWidget(
             future: reviewCont.listContentFuture.value,
@@ -122,23 +118,62 @@ class ReviewListScreen extends StatelessWidget {
                             totalReviews: totalReviews,
                             reviews: reviewCont.listContent,
                             isLoggedIn: isLoggedIn.value,
-                            onRateAction: () {
-                              if (isLoggedIn.value) {
-                                reviewCont.onReviewCheck();
-                                reviewCont.isEdit(false);
-                                Get.bottomSheet(
-                                  AppDialogWidget(
-                                    child: editReviewDialog(context),
-                                  ),
-                                  isScrollControlled: true,
-                                );
-                              } else {
-                                Get.to(() => SignInScreen());
-                              }
-                            },
+                            showRateAction: false,
+                            isCard: false,
+                            onRateAction: () {},
                           ),
                         ),
-                        24.height,
+                        if (isLoggedIn.value) ...[
+                          24.height,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: editReviewDialog(context),
+                          ),
+                          24.height,
+                        ] else ...[
+                          16.height,
+                          Divider(color: context.dividerColor, height: 1),
+                          16.height,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    RatingBarWidget(
+                                      rating: 0,
+                                      size: 28,
+                                      activeColor: Colors.white,
+                                      inActiveColor: textSecondaryColorGlobal.withOpacity(0.5),
+                                      disable: true,
+                                      onRatingChanged: (v){},
+                                    ),
+                                    16.width,
+                                    Text('Login to rate this ${contentType.getContentTypeTitleSingular().toLowerCase()}', style: secondaryTextStyle(size: 12)),
+                                  ]
+                                ),
+                                16.height,
+                                AppButton(
+                                  text: 'Login',
+                                  textStyle: boldTextStyle(color: appColorPrimary, size: 14),
+                                  color: Colors.transparent,
+                                  shapeBorder: RoundedRectangleBorder(
+                                    borderRadius: radius(8),
+                                    side: BorderSide(color: appColorPrimary),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                                  onTap: () {
+                                    Get.to(() => SignInScreen());
+                                  },
+                                ),
+                              ]
+                            )
+                          ),
+                          16.height,
+                          Divider(color: context.dividerColor, height: 1),
+                          24.height,
+                        ],
                         // Reviews List
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -179,12 +214,7 @@ class ReviewListScreen extends StatelessWidget {
                                 editCallback: () async {
                                   reviewCont.onReviewCheck();
                                   reviewCont.isEdit(true);
-                                  Get.bottomSheet(
-                                    AppDialogWidget(
-                                      child: editReviewDialog(context),
-                                    ),
-                                    isScrollControlled: true,
-                                  );
+                                  reviewCont.scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
                                 },
                                 deleteCallback: () {
                                   reviewCont.deleteReview(reviewDetail.id);
@@ -207,50 +237,20 @@ class ReviewListScreen extends StatelessWidget {
 
   Widget editReviewDialog(BuildContext context) {
     return Column(
-      spacing: 12,
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              locale.value.yourReview,
-              style: boldTextStyle(),
-            ).expand(),
-            Obx(
-              () => InkWell(
-                onTap: () {
-                  Get.back();
-                  reviewCont.isBtnEnable(false);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: boxDecorationDefault(
-                    borderRadius: BorderRadius.circular(4),
-                    color: cardColor,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(reviewCont.isEdit.value ? Icons.close : Icons.mode_edit_outlined, size: 12, color: white),
-                      4.width,
-                      Text(reviewCont.isEdit.value ? locale.value.close : locale.value.edit.toUpperCase(), style: boldTextStyle(size: 12)),
-                    ],
-                  ),
-                ),
-              ).visible(reviewCont.isEdit.value),
-            ),
-          ],
+        Text(
+          'Rate this ${contentType.getContentTypeTitleSingular().toLowerCase()}',
+          style: boldTextStyle(size: 16),
         ),
+        8.height,
         Obx(
           () => RatingBarWidget(
-            size: 16,
+            size: 28,
             allowHalfRating: true,
-            activeColor: goldColor,
-            inActiveColor: darkGrayTextColor,
+            activeColor: Colors.white,
+            inActiveColor: textSecondaryColorGlobal.withOpacity(0.5),
             rating: reviewCont.ratingVal.value,
             spacing: 8,
             onRatingChanged: (rating) {
@@ -259,6 +259,9 @@ class ReviewListScreen extends StatelessWidget {
             },
           ),
         ),
+        8.height,
+        Text('Tap a star to rate', style: secondaryTextStyle(size: 12)),
+        16.height,
         AppTextField(
           textStyle: commonPrimaryTextStyle(size: 14),
           focus: reviewCont.focus,
@@ -266,30 +269,35 @@ class ReviewListScreen extends StatelessWidget {
           textFieldType: TextFieldType.MULTILINE,
           decoration: inputDecoration(
             context,
-            hintText: locale.value.shareYourThoughtsOnContent(movieName, contentType.getContentTypeTitleSingular()),
-            contentPadding: const EdgeInsetsDirectional.all(12),
+            hintText: 'Write your review (optional)',
+            fillColor: context.cardColor,
+            filled: true,
+          ).copyWith(
+            border: OutlineInputBorder(borderRadius: radius(12), borderSide: BorderSide.none),
+            enabledBorder: OutlineInputBorder(borderRadius: radius(12), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: radius(12), borderSide: BorderSide.none),
           ),
           onChanged: (value) {
             reviewCont.getBtnEnable();
           },
         ),
+        16.height,
         Obx(
           () => IgnorePointer(
             ignoring: !reviewCont.isBtnEnable.value,
             child: AppButton(
               width: double.infinity,
-              text: locale.value.submit,
-              disabledColor: btnColor,
-              color: reviewCont.isBtnEnable.value ? appColorPrimary : lightBtnColor,
-              textStyle: appButtonTextStyleWhite.copyWith(
-                color: reviewCont.isBtnEnable.value ? white : darkGrayTextColor,
+              text: 'Submit Review',
+              disabledColor: context.cardColor.withOpacity(0.5),
+              color: reviewCont.isBtnEnable.value ? context.cardColor : context.cardColor.withOpacity(0.5),
+              textStyle: boldTextStyle(
+                color: reviewCont.isBtnEnable.value ? Colors.white : textSecondaryColorGlobal,
               ),
-              shapeBorder: RoundedRectangleBorder(borderRadius: radius(defaultAppButtonRadius / 2)),
+              shapeBorder: RoundedRectangleBorder(borderRadius: radius(12)),
               onTap: () {
                 if (reviewCont.isLoading.value) return;
                 if (reviewCont.isBtnEnable.value) {
                   hideKeyboard(context);
-                  Get.back();
                   reviewCont.editReview();
                 }
               },
