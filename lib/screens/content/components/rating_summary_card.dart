@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:nb_utils/nb_utils.dart';
 import 'package:streamit_laravel/main.dart';
 import 'package:streamit_laravel/screens/review/model/review_model.dart';
 import 'package:streamit_laravel/utils/colors.dart';
-import 'package:streamit_laravel/utils/common_base.dart';
 
 class RatingSummaryCard extends StatelessWidget {
   final double averageRating;
