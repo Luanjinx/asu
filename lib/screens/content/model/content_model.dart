@@ -201,6 +201,8 @@ class ContentData {
   String category;
   TvShowData? tvShowData;
   List<SeasonData> seasonList;
+  int? seasonId;
+  int? episodeNumber;
 
   String get releaseYear => releaseDate.isNotEmpty ? DateTime.tryParse(releaseDate)?.year.toString() ?? "" : "";
 
@@ -248,6 +250,8 @@ class ContentData {
     this.requiredPlanLevel = -1,
     this.tvShowData,
     this.seasonList = const <SeasonData>[],
+    this.seasonId,
+    this.episodeNumber,
   });
 
   factory ContentData.fromDetailsJson(Map<String, dynamic> json) {
@@ -285,6 +289,8 @@ class ContentData {
                   SeasonData.fromJson(json['season_data']),
                 ]
               : [],
+      seasonId: json['season_id'] is int ? json['season_id'] : (json['season_id'] is String ? int.tryParse(json['season_id']) : null),
+      episodeNumber: json['episode_number'] is int ? json['episode_number'] : (json['episode_number'] is String ? int.tryParse(json['episode_number']) : null),
     );
   }
 
@@ -313,6 +319,8 @@ class ContentData {
       'required_plan_level': requiredPlanLevel,
       'tv_show_data': tvShowData?.toJson(),
       'season_data': seasonList.map((e) => e.toJson()).toList(),
+      'season_id': seasonId,
+      'episode_number': episodeNumber,
     };
   }
 
