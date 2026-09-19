@@ -109,8 +109,9 @@ class EpisodeComponent extends StatelessWidget {
     }
 
     return Container(
+      width: Get.width * 0.45,
       decoration: boxDecorationDefault(
-        color: cardColor,
+        color: Colors.transparent,
         borderRadius: radius(6),
         border: Border.all(
           color: isSelected ? appColorPrimary : Colors.transparent,
@@ -125,14 +126,19 @@ class EpisodeComponent extends StatelessWidget {
               Stack(
                 alignment: AlignmentGeometry.center,
                 children: [
-                  CachedImageWidget(
-                    url: episodeData.posterImage,
-                    height: Get.height * 0.16,
-                    width: Get.width,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.topCenter,
-                    topLeftRadius: 6,
-                    topRightRadius: 6,
+                  AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: CachedImageWidget(
+                      url: episodeData.posterImage,
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.topCenter,
+                      topLeftRadius: 6,
+                      topRightRadius: 6,
+                      bottomLeftRadius: 6,
+                      bottomRightRadius: 6,
+                    ),
                   ),
                   if (isSelected)
                     Align(
@@ -148,29 +154,57 @@ class EpisodeComponent extends StatelessWidget {
                         ),
                       ),
                     ),
-                  Container(
-                    height: Get.height * 0.16,
-                    width: Get.width,
-                    decoration: boxDecorationDefault(
-                      borderRadius: BorderRadiusDirectional.only(
-                        topStart: radiusCircular(6),
-                        topEnd: radiusCircular(6),
-                      ),
-                      gradient: LinearGradient(
-                        colors: [
-                          black.withValues(alpha: 0.001),
-                          black.withValues(alpha: 0.002),
-                          black.withValues(alpha: 0.5),
-                          black.withValues(alpha: 0.7),
-                          black.withValues(alpha: 0.9),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  )
+                  // Removed gradient container
                 ],
               ),
+              if (episodeData.details.seasonId != null || episodeData.details.episodeNumber != null)
+                PositionedDirectional(
+                  top: 4,
+                  start: 4,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: boxDecorationDefault(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: radius(4),
+                    ),
+                    child: Text(
+                      'S${(episodeData.details.seasonId ?? 1).toString().padLeft(2, '0')}E${(episodeData.details.episodeNumber ?? 1).toString().padLeft(2, '0')}',
+                      style: boldTextStyle(color: Colors.white, size: 10),
+                    ),
+                  ),
+                ),
+              if (episodeData.details.releaseDate.isNotEmpty)
+                PositionedDirectional(
+                  top: 4,
+                  end: 4,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: boxDecorationDefault(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: radius(4),
+                    ),
+                    child: Text(
+                      episodeData.details.releaseDate,
+                      style: boldTextStyle(color: Colors.white, size: 10),
+                    ),
+                  ),
+                ),
+              if (episodeData.details.duration.isNotEmpty)
+                PositionedDirectional(
+                  bottom: 8,
+                  end: 4,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    decoration: boxDecorationDefault(
+                      color: Colors.black.withOpacity(0.6),
+                      borderRadius: radius(4),
+                    ),
+                    child: Text(
+                      episodeData.details.duration,
+                      style: boldTextStyle(color: Colors.white, size: 10),
+                    ),
+                  ),
+                ),
               if (episodeData.details.duration.isNotEmpty && (episodeData.details.duration != "00:00:00" && episodeData.details.watchedDuration != "00:00:01"))
                 PositionedDirectional(
                   bottom: 4,
@@ -213,6 +247,8 @@ class EpisodeComponent extends StatelessWidget {
                   Text(
                     episodeData.details.name.capitalizeEachWord(),
                     style: commonW600PrimaryTextStyle(size: 14),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ).expand(),
                   if (showDownloadButton)
                     IconButton(
@@ -322,17 +358,10 @@ class EpisodeComponent extends StatelessWidget {
               if (episodeData.details.description.isNotEmpty)
                 readMoreTextWidget(
                   episodeData.details.description,
-                  trimLines: 3,
+                  trimLines: 2,
                 ),
-              if (episodeData.details.duration.isNotEmpty)
-                TextIcon(
-                  edgeInsets: EdgeInsets.zero,
-                  prefix: IconWidget(imgPath: Assets.iconsClock, color: iconColor, size: 14),
-                  text: episodeData.details.duration,
-                  textStyle: commonSecondaryTextStyle(),
-                )
             ],
-          ).paddingSymmetric(horizontal: 12, vertical: 8),
+          ).paddingSymmetric(horizontal: 0, vertical: 8),
         ],
       ),
     );
