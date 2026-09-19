@@ -505,46 +505,63 @@ class ContentDetailsScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   8.height,
-                                  if (contentDetailsController.content.value!.details.isSeasonAvailable)
-                                    Theme(
-                                      data: Theme.of(context).copyWith(
-                                        highlightColor: Colors.transparent,
-                                        // Remove highlight
-                                        hoverColor: Colors.transparent,
-                                        focusColor: Colors.transparent,
-                                        splashColor: Colors.transparent,
-                                        canvasColor: cardColor, // Dropdown background
-                                      ),
-                                      child: DropdownButtonFormField<SeasonData>(
-                                        initialValue: contentDetailsController.selectedSeason.value,
-                                        style: boldTextStyle(color: appColorPrimary),
-                                        dropdownColor: cardColor,
-                                        borderRadius: radius(8),
-                                        isDense: true,
-                                        decoration: inputDecoration(
-                                          context,
-                                          border: InputBorder.none,
-                                          enabledBorder: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                          fillColor: cardColor,
-                                          filled: true,
-                                          contentPadding: EdgeInsets.symmetric(horizontal: 12),
-                                          boxConstraints: BoxConstraints(maxWidth: Get.width * 0.7, maxHeight: 60),
+                                  if (episodeItems.isNotEmpty || contentDetailsController.content.value!.details.isSeasonAvailable)
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          locale.value.episodes,
+                                          style: boldTextStyle(size: 18),
                                         ),
-                                        onChanged: (value) {
-                                          if (value != null && contentDetailsController.selectedSeason.value.id != value.id) contentDetailsController.setSeasonData(value);
-                                        },
-                                        items: List.generate(
-                                          contentDetailsController.content.value!.details.seasonList.length,
-                                          (index) {
-                                            SeasonData seasonData = contentDetailsController.content.value!.details.seasonList[index];
-                                            return DropdownMenuItem<SeasonData>(
-                                              value: seasonData,
-                                              child: Marquee(child: Text(seasonData.name, style: commonPrimaryTextStyle())),
-                                            );
-                                          },
-                                        ),
-                                      ).cornerRadiusWithClipRRect(6),
+                                        if (contentDetailsController.content.value!.details.isSeasonAvailable)
+                                          Theme(
+                                            data: Theme.of(context).copyWith(
+                                              highlightColor: Colors.transparent,
+                                              hoverColor: Colors.transparent,
+                                              focusColor: Colors.transparent,
+                                              splashColor: Colors.transparent,
+                                              canvasColor: cardColor,
+                                            ),
+                                            child: Container(
+                                              height: 36,
+                                              decoration: boxDecorationDefault(
+                                                color: cardColor,
+                                                borderRadius: radius(6),
+                                              ),
+                                              padding: EdgeInsets.only(left: 12, right: 8),
+                                              child: DropdownButtonHideUnderline(
+                                                child: DropdownButton<SeasonData>(
+                                                  value: contentDetailsController.selectedSeason.value,
+                                                  style: boldTextStyle(color: appColorPrimary, size: 14),
+                                                  dropdownColor: cardColor,
+                                                  borderRadius: radius(8),
+                                                  isDense: true,
+                                                  icon: Icon(Icons.keyboard_arrow_down, size: 20, color: textPrimaryColorGlobal),
+                                                  onChanged: (value) {
+                                                    if (value != null && contentDetailsController.selectedSeason.value.id != value.id) {
+                                                      contentDetailsController.setSeasonData(value);
+                                                    }
+                                                  },
+                                                  items: List.generate(
+                                                    contentDetailsController.content.value!.details.seasonList.length,
+                                                    (index) {
+                                                      SeasonData seasonData = contentDetailsController.content.value!.details.seasonList[index];
+                                                      return DropdownMenuItem<SeasonData>(
+                                                        value: seasonData,
+                                                        child: ConstrainedBox(
+                                                          constraints: BoxConstraints(maxWidth: Get.width * 0.4),
+                                                          child: Marquee(
+                                                            child: Text(seasonData.name, style: commonPrimaryTextStyle()),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   if (episodeItems.isNotEmpty)
                                     SingleChildScrollView(
@@ -603,6 +620,7 @@ class ContentDetailsScreen extends StatelessWidget {
 
                                                   return EpisodeComponent(
                                                     episodeData: episodeData,
+                                                    episodeIndex: index,
                                                     isSelected: contentDetailsController.currentEpisodeIndex.value == index,
                                                     showDownloadButton: isEpisodeDownloadable && contentDetailsController.currentEpisodeIndex.value != index,
                                                     isDownloaded: isEpisodeDownloaded,
