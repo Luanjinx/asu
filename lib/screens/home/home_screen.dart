@@ -37,102 +37,117 @@ class HomeScreen extends StatelessWidget {
       );
 
       return Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: appScreenBackgroundDark,
-        appBar: AppBar(
-          backgroundColor: appScreenBackgroundDark,
-          elevation: 0,
-          automaticallyImplyLeading: false,
-          toolbarHeight: kToolbarHeight,
-          title: Row(
-            children: [
-              Image.asset(
-                APP_MINI_LOGO_URL,
-                width: 24,
-                height: 24,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                APP_NAME.toUpperCase(),
-                style: TextStyle(
-                  color: appColorPrimary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: AnimatedBuilder(
+            animation: homeScreenController.scrollController,
+            builder: (context, child) {
+              double offset = 0.0;
+              if (homeScreenController.scrollController.hasClients) {
+                offset = homeScreenController.scrollController.offset;
+              }
+              double opacity = (offset / 100.0).clamp(0.0, 1.0);
+              
+              return AppBar(
+                backgroundColor: appScreenBackgroundDark.withOpacity(opacity),
+                elevation: 0,
+                automaticallyImplyLeading: false,
+                toolbarHeight: kToolbarHeight,
+                title: Row(
+                  children: [
+                    Image.asset(
+                      APP_MINI_LOGO_URL,
+                      width: 24,
+                      height: 24,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      APP_NAME.toUpperCase(),
+                      style: TextStyle(
+                        color: appColorPrimary,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
-          actions: [
-            GestureDetector(
-              onTap: () {
-                doIfLogin(
-                  onLoggedIn: () {
-                    if (selectedAccountProfile.value.isChildProfile
-                            .validate() ==
-                        1) {
-                      toast(locale.value.kidsProfileCannotAccessSubscription);
-                      return;
-                    }
-                    Get.to(() => SubscriptionScreen(launchDashboard: true));
-                  },
-                );
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  border:
-                      Border.all(color: const Color(0xFFD4AF37), width: 1.5),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Obx(
-                  () => Text(
-                    currentSubscription.value.level > 0
-                        ? locale.value.updrade.toUpperCase()
-                        : locale.value.subscribe.toUpperCase(),
-                    style: TextStyle(
-                      color: const Color(0xFFD4AF37),
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 0.5,
+                actions: [
+                  GestureDetector(
+                    onTap: () {
+                      doIfLogin(
+                        onLoggedIn: () {
+                          if (selectedAccountProfile.value.isChildProfile
+                                  .validate() ==
+                              1) {
+                            toast(locale.value.kidsProfileCannotAccessSubscription);
+                            return;
+                          }
+                          Get.to(() => SubscriptionScreen(launchDashboard: true));
+                        },
+                      );
+                    },
+                    child: Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        border:
+                            Border.all(color: const Color(0xFFD4AF37), width: 1.5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Obx(
+                        () => Text(
+                          currentSubscription.value.level > 0
+                              ? locale.value.updrade.toUpperCase()
+                              : locale.value.subscribe.toUpperCase(),
+                          style: TextStyle(
+                            color: const Color(0xFFD4AF37),
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-            SizedBox(width: 4),
-            if (isLoggedIn.value &&
-                selectedAccountProfile.value.isChildProfile.validate() == 0)
-              IconButton(
-                padding: const EdgeInsets.only(top: 8, bottom: 8),
-                constraints: const BoxConstraints(),
-                onPressed: () {
-                  doIfLogin(
-                    onLoggedIn: () {
-                      Get.to(() => NotificationScreen());
-                    },
-                  );
-                },
-                icon: Obx(() {
-                  return Badge.count(
-                    maxCount: 10,
-                    isLabelVisible: appUnReadNotificationCount.value > 0,
-                    textStyle: commonW500PrimaryTextStyle(size: 10),
-                    padding: EdgeInsets.zero,
-                    backgroundColor: appColorPrimary,
-                    count: appUnReadNotificationCount.value > 0
-                        ? appUnReadNotificationCount.value
-                        : 0,
-                    child: IconWidget(
-                      imgPath: Assets.iconsBell,
-                      size: 22,
-                      color: Colors.white,
+                  SizedBox(width: 4),
+                  if (isLoggedIn.value &&
+                      selectedAccountProfile.value.isChildProfile.validate() == 0)
+                    IconButton(
+                      padding: const EdgeInsets.only(top: 8, bottom: 8),
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        doIfLogin(
+                          onLoggedIn: () {
+                            Get.to(() => NotificationScreen());
+                          },
+                        );
+                      },
+                      icon: Obx(() {
+                        return Badge.count(
+                          maxCount: 10,
+                          isLabelVisible: appUnReadNotificationCount.value > 0,
+                          textStyle: commonW500PrimaryTextStyle(size: 10),
+                          padding: EdgeInsets.zero,
+                          backgroundColor: appColorPrimary,
+                          count: appUnReadNotificationCount.value > 0
+                              ? appUnReadNotificationCount.value
+                              : 0,
+                          child: IconWidget(
+                            imgPath: Assets.iconsBell,
+                            size: 22,
+                            color: Colors.white,
+                          ),
+                        );
+                      }),
                     ),
-                  );
-                }),
-              ),
-            SizedBox(width: 14)
-          ],
+                  SizedBox(width: 14)
+                ],
+              );
+            },
+          ),
         ),
         body: RefreshIndicator(
           onRefresh: () async {
@@ -146,57 +161,65 @@ class HomeScreen extends StatelessWidget {
           backgroundColor: appScreenBackgroundDark,
           strokeWidth: 3.0,
           displacement: 40.0,
-          child: SingleChildScrollView(
-            controller: homeScreenController.scrollController,
-            child: Column(
-              children: [
-                if (shortDramaToggle != null)
-                  Container(
-                    width: double.infinity,
-                    color: appScreenBackgroundDark,
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    child: shortDramaToggle,
-                  ),
-                if (shouldShowBanner)
-                  BannerWidget(
-                    sliderController: sliderCtrl,
-                    tag: AppRoutes.home,
-                  ),
-                ShortDramaBridge.buildContent(
-                  homeScreenController,
-                  Obx(
-                    () => AnimatedWrap(
-                      listAnimationType: commonListAnimationType,
-                      children: [
-                        SnapHelperWidget(
-                          future:
-                              homeScreenController.dashboardDetailsFuture.value,
-                          initialData: cachedDashboardDetailResponse,
-                          loadingWidget: const ShimmerHome(),
-                          errorBuilder: (error) {
-                            return const SizedBox.shrink();
-                          },
-                          onSuccess: (res) {
-                            return CategoryListComponent(
-                              categoryList: homeScreenController
-                                  .dashboardOtherDetailsSectionList,
-                              onRemoveAd: (mainIndex, listIndex) {
-                                homeScreenController.removeAdFromSection(
-                                    mainIndex, listIndex);
-                              },
-                            );
-                          },
-                        ),
-                        Obx(
-                          () => ShimmerHome().visible(
-                              homeScreenController.showCategoryShimmer.value),
-                        ),
-                      ],
+          child: MediaQuery.removePadding(
+            context: context,
+            removeTop: true,
+            child: SingleChildScrollView(
+              controller: homeScreenController.scrollController,
+              child: Column(
+                children: [
+                  if (shortDramaToggle != null) ...[
+                    SizedBox(height: context.statusBarHeight + kToolbarHeight),
+                    Container(
+                      width: double.infinity,
+                      color: appScreenBackgroundDark,
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      child: shortDramaToggle,
+                    ),
+                  ] else if (!shouldShowBanner) ...[
+                    SizedBox(height: context.statusBarHeight + kToolbarHeight),
+                  ],
+                  if (shouldShowBanner)
+                    BannerWidget(
+                      sliderController: sliderCtrl,
+                      tag: AppRoutes.home,
+                    ),
+                  ShortDramaBridge.buildContent(
+                    homeScreenController,
+                    Obx(
+                      () => AnimatedWrap(
+                        listAnimationType: commonListAnimationType,
+                        children: [
+                          SnapHelperWidget(
+                            future:
+                                homeScreenController.dashboardDetailsFuture.value,
+                            initialData: cachedDashboardDetailResponse,
+                            loadingWidget: const ShimmerHome(),
+                            errorBuilder: (error) {
+                              return const SizedBox.shrink();
+                            },
+                            onSuccess: (res) {
+                              return CategoryListComponent(
+                                categoryList: homeScreenController
+                                    .dashboardOtherDetailsSectionList,
+                                onRemoveAd: (mainIndex, listIndex) {
+                                  homeScreenController.removeAdFromSection(
+                                      mainIndex, listIndex);
+                                },
+                              );
+                            },
+                          ),
+                          Obx(
+                            () => ShimmerHome().visible(
+                                homeScreenController.showCategoryShimmer.value),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(height: 120)
-              ],
+                  SizedBox(height: 120)
+                ],
+              ),
             ),
           ),
         ),
