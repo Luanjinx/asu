@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nb_utils/nb_utils.dart';
-import 'package:streamit_laravel/components/app_dialog_widget.dart';
 import 'package:streamit_laravel/components/app_no_data_widget.dart';
 import 'package:streamit_laravel/screens/review/components/review_card.dart';
 import 'package:streamit_laravel/screens/review/review_list_controller.dart';
