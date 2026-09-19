@@ -70,7 +70,7 @@ class RatingSummaryCard extends StatelessWidget {
               ),
               6.height,
               Text(
-                '$totalReviews ${locale.value.ratings}',
+                '$totalReviews ${locale.value.reviews}',
                 style: secondaryTextStyle(size: 10),
               ),
             ],
