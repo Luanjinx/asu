@@ -12,6 +12,7 @@ import 'package:streamit_laravel/utils/common_base.dart';
 import 'package:streamit_laravel/utils/common_functions.dart';
 import 'package:streamit_laravel/utils/constants.dart';
 import 'package:streamit_laravel/utils/extension/string_extension.dart';
+import 'package:streamit_laravel/screens/content/components/rating_summary_card.dart';
 
 class ReviewComponent extends StatelessWidget {
   final ContentDetailsController controller;
@@ -29,67 +30,109 @@ class ReviewComponent extends StatelessWidget {
         final myReview = details?.myReview;
         final otherReviews = details?.otherReviewList;
 
-        return Column(
-          spacing: 12,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (hasReviews) ...[
-              if (controller.isEditReview.value || myReview == null)
-                reviewForm(context)
-              else ...[
-                viewAllWidget(
-                  label: locale.value.yourReview,
-                  showViewAll: false,
-                  labelSize: 16,
-                  isSymmetricPaddingEnable: false,
-                ),
-                if (!controller.isEditReview.value)
-                  ReviewCard(
-                    reviewDetail: myReview,
-                    isLoggedInUser: true,
-                    editCallback: () {
-                      controller.openReviewDialog();
-                      controller.isEditReview(true);
-                    },
-                    deleteCallback: () {
-                      controller.deleteReview();
-                    },
-                  ),
-              ]
-            ],
-            4.height,
-            if (hasReviews && otherReviews.validate().isNotEmpty) ...[
-              viewAllWidget(
-                label: locale.value.reviews,
-                showViewAll: details!.totalReviews > 3,
-                labelSize: 16,
-                isSymmetricPaddingEnable: false,
-                onButtonPressed: () {
-                  if (controller.showTrailer.value) {
-                    controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
-                  }
-                  Get.to(
-                    () => ReviewListScreen(
-                      movieName: controller.content.value!.details.name,
-                      contentType: controller.content.value!.details.type,
+        List<ReviewModel> allReviews = [];
+        if (myReview != null) allReviews.add(myReview);
+        if (otherReviews != null) allReviews.addAll(otherReviews);
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: boxDecorationDefault(
+            color: context.cardColor,
+            borderRadius: radius(12),
+          ),
+          child: Column(
+            spacing: 16,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Ratings & Reviews', style: boldTextStyle(size: 18)),
+                  if (hasReviews)
+                    InkWell(
+                      onTap: () {
+                        if (controller.showTrailer.value) {
+                          controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
+                        }
+                        Get.to(
+                          () => ReviewListScreen(
+                            movieName: controller.content.value!.details.name,
+                            contentType: controller.content.value!.details.type,
+                            posterImage: controller.content.value!.details.posterImage,
+                            averageRating: controller.content.value!.details.rating?.toDouble() ?? 0.0,
+                            totalReviews: details?.totalReviews ?? 0,
+                          ),
+                          arguments: ArgumentModel(intArgument: controller.content.value!.id),
+                        );
+                      },
+                      borderRadius: radius(24),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: appColorPrimary),
+                          borderRadius: radius(24),
+                        ),
+                        child: Text('Write a Review', style: boldTextStyle(size: 12, color: appColorPrimary)),
+                      ),
                     ),
-                    arguments: ArgumentModel(intArgument: controller.content.value!.id),
-                  );
-                },
+                ],
               ),
-              AnimatedWrap(
-                runSpacing: 12,
-                spacing: 12,
-                listAnimationType: commonListAnimationType,
-                itemCount: otherReviews.validate().length,
-                // Show max 3
-                itemBuilder: (context, index) {
-                  return ReviewCard(reviewDetail: otherReviews.validate()[index]);
-                },
-              ),
+              if (hasReviews)
+                RatingSummaryCard(
+                  averageRating: controller.content.value!.details.rating?.toDouble() ?? 0.0,
+                  totalReviews: details?.totalReviews ?? 0,
+                  reviews: allReviews,
+                  isLoggedIn: isLoggedIn.value,
+                  onRateAction: () {
+                    if (isLoggedIn.value) {
+                      controller.openReviewDialog();
+                      controller.isEditReview(myReview != null);
+                    } else {
+                      Get.to(() => const SignInScreen());
+                    }
+                  },
+                ),
+              if (hasReviews && allReviews.isNotEmpty) ...[
+                Divider(color: textSecondaryColorGlobal.withOpacity(0.2)),
+                ReviewCard(
+                  reviewDetail: allReviews.first,
+                  isLoggedInUser: allReviews.first.userId == loginUserData.value.id,
+                  editCallback: () {
+                    controller.openReviewDialog();
+                    controller.isEditReview(true);
+                  },
+                  deleteCallback: () {
+                    controller.deleteReview();
+                  },
+                ),
+                Divider(color: textSecondaryColorGlobal.withOpacity(0.2)),
+                InkWell(
+                  onTap: () {
+                    if (controller.showTrailer.value) {
+                      controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
+                    }
+                    Get.to(
+                      () => ReviewListScreen(
+                        movieName: controller.content.value!.details.name,
+                        contentType: controller.content.value!.details.type,
+                        posterImage: controller.content.value!.details.posterImage,
+                        averageRating: controller.content.value!.details.rating?.toDouble() ?? 0.0,
+                        totalReviews: details?.totalReviews ?? 0,
+                      ),
+                      arguments: ArgumentModel(intArgument: controller.content.value!.id),
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    alignment: Alignment.center,
+                    child: Text('See All Reviews >', style: boldTextStyle(color: textSecondaryColorGlobal, size: 14)),
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         );
       },
     );
