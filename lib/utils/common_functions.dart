@@ -171,6 +171,7 @@ void checkCastSupported({required VoidCallback onCastSupported}) {
 
 Widget watchNowButton({
   EdgeInsets? margin,
+  double? width,
   required ContentModel contentData,
   required VoidCallback callBack,
   required VoidCallback onPaymentReturnCallBack,
@@ -182,7 +183,7 @@ Widget watchNowButton({
             ? appColorPrimary
             : rentedColor
         : appColorPrimary,
-    width: Get.width * 0.40,
+    width: width ?? Get.width * 0.40,
     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     shapeBorder: RoundedRectangleBorder(borderRadius: radius(4)),
     child: Row(
