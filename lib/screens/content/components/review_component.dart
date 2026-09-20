@@ -1,305 +1,202 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nb_utils/nb_utils.dart';
-import 'package:streamit_laravel/components/app_no_data_widget.dart';
-import 'package:streamit_laravel/components/app_scaffold.dart';
-import 'package:streamit_laravel/components/cached_image_widget.dart';
+import 'package:streamit_laravel/generated/assets.dart';
 import 'package:streamit_laravel/main.dart';
-import 'package:streamit_laravel/screens/auth/sign_in/sign_in_screen.dart';
+import 'package:streamit_laravel/models/base_response_model.dart';
 import 'package:streamit_laravel/screens/content/components/rating_summary_card.dart';
+import 'package:streamit_laravel/screens/content/content_details_controller.dart';
 import 'package:streamit_laravel/screens/review/components/review_card.dart';
 import 'package:streamit_laravel/screens/review/model/review_model.dart';
-import 'package:streamit_laravel/screens/review/review_list_controller.dart';
-import 'package:streamit_laravel/screens/review/shimmer_review_list/shimmer_review_list.dart';
+import 'package:streamit_laravel/screens/review/review_list_screen.dart';
 import 'package:streamit_laravel/utils/colors.dart';
 import 'package:streamit_laravel/utils/common_base.dart';
 import 'package:streamit_laravel/utils/common_functions.dart';
-import 'package:streamit_laravel/utils/empty_error_state_widget.dart';
+import 'package:streamit_laravel/utils/constants.dart';
 import 'package:streamit_laravel/utils/extension/string_extension.dart';
 
-class ReviewListScreen extends StatelessWidget {
-  final String movieName;
-  final String contentType;
-  final String? posterImage;
-  final double averageRating;
-  final int totalReviews;
+class ReviewComponent extends StatelessWidget {
+  final ContentDetailsController controller;
 
-  ReviewListScreen({
-    super.key,
-    required this.movieName,
-    required this.contentType,
-    this.posterImage,
-    this.averageRating = 0.0,
-    this.totalReviews = 0,
-  });
+  const ReviewComponent({super.key, required this.controller});
 
-  final ReviewListController reviewCont = Get.find<ReviewListController>();
+  void _navigateToReviewList() {
+    if (controller.showTrailer.value) {
+      controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
+    }
+    final details = controller.content.value!.details;
+    Get.to(
+      () => ReviewListScreen(
+        movieName: details.name,
+        contentType: details.type,
+        posterImage: details.thumbnailImage,
+        averageRating: double.tryParse(details.imdbRating) ?? 0.0,
+        totalReviews: controller.content.value!.reviews?.totalReviews ?? 0,
+      ),
+      arguments: ArgumentModel(intArgument: controller.content.value!.id),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => NewAppScaffold(
-        scrollController: reviewCont.scrollController,
-        currentPage: reviewCont.currentPage,
-        isLoading: (reviewCont.isLoading.value).obs,
-        scaffoldBackgroundColor: appScreenBackgroundDark,
-        onRefresh: reviewCont.onRefresh,
-        appBarTitleText: 'Rating & Review',
-        bottomNavigationBar: !isLoggedIn.value
-            ? Padding(
-                padding: const EdgeInsets.all(16),
-                child: AppButton(
-                  width: double.infinity,
-                  text: 'Login to Review',
-                  textStyle: boldTextStyle(color: Colors.black),
-                  color: Colors.white,
-                  onTap: () {
-                    Get.to(() => SignInScreen());
+      () {
+        if (controller.content.value == null ||
+            (controller.content.value != null &&
+                (controller.content.value!.details.type == VideoType.video ||
+                    controller.content.value!.details.type == VideoType.episode))) {
+          return const Offstage();
+        }
+        final hasReviews = controller.content.value!.isReviewAvailable;
+        final details = controller.content.value!.reviews;
+        final myReview = details?.myReview;
+        final otherReviews = details?.otherReviewList;
+
+        List<ReviewModel> allReviews = [];
+        if (myReview != null) allReviews.add(myReview);
+        if (otherReviews != null) allReviews.addAll(otherReviews);
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: boxDecorationDefault(
+            color: context.cardColor,
+            borderRadius: radius(12),
+          ),
+          child: Column(
+            spacing: 16,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Ratings & Reviews', style: boldTextStyle(size: 18)),
+                  if (hasReviews)
+                    InkWell(
+                      onTap: _navigateToReviewList,
+                      borderRadius: radius(24),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: appColorPrimary),
+                          borderRadius: radius(24),
+                        ),
+                        child: Text('Write a Review', style: boldTextStyle(size: 12, color: appColorPrimary)),
+                      ),
+                    ),
+                ],
+              ),
+              if (hasReviews)
+                RatingSummaryCard(
+                  averageRating: double.tryParse(controller.content.value!.details.imdbRating) ?? 0.0,
+                  totalReviews: details?.totalReviews ?? 0,
+                  reviews: allReviews,
+                  isLoggedIn: isLoggedIn.value,
+                  onRateAction: _navigateToReviewList,
+                ),
+              if (hasReviews && allReviews.isNotEmpty) ...[
+                Divider(color: textSecondaryColorGlobal.withOpacity(0.2)),
+                ReviewCard(
+                  reviewDetail: allReviews.first,
+                  isLoggedInUser: allReviews.first.userId == loginUserData.value.id,
+                  editCallback: _navigateToReviewList,
+                  deleteCallback: () {
+                    controller.deleteReview();
                   },
                 ),
-              )
-            : null,
-        body: Obx(
-          () => SnapHelperWidget(
-            future: reviewCont.listContentFuture.value,
-            loadingWidget: ShimmerReviewList(),
-            errorBuilder: (error) {
-              return AppNoDataWidget(
-                title: error,
-                retryText: locale.value.reload,
-                imageWidget: const ErrorStateWidget(),
-                onRetry: reviewCont.onRetry,
-              );
-            },
-            onSuccess: (res) {
-              return Obx(
-                () {
-                  return SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Movie Header
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                          child: Row(
-                            children: [
-                              if (posterImage != null && posterImage!.isNotEmpty)
-                                ClipRRect(
-                                  borderRadius: radius(8),
-                                  child: CachedImageWidget(
-                                    url: posterImage!,
-                                    height: 80,
-                                    width: 60,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              12.width,
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(movieName, style: boldTextStyle(size: 18)),
-                                    4.height,
-                                    Text('Ratings & Reviews', style: secondaryTextStyle(size: 14)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Rating Summary Card
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: RatingSummaryCard(
-                            averageRating: averageRating,
-                            totalReviews: totalReviews,
-                            reviews: reviewCont.listContent,
-                            isLoggedIn: isLoggedIn.value,
-                            showRateAction: false,
-                            isCard: false,
-                            onRateAction: () {},
-                          ),
-                        ),
-                        if (isLoggedIn.value) ...[
-                          24.height,
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: editReviewDialog(context),
-                          ),
-                          24.height,
-                        ] else ...[
-                          16.height,
-                          Divider(color: context.dividerColor, height: 1),
-                          16.height,
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    RatingBarWidget(
-                                      rating: 0,
-                                      size: 28,
-                                      activeColor: Colors.white,
-                                      inActiveColor: textSecondaryColorGlobal.withOpacity(0.5),
-                                      disable: true,
-                                      onRatingChanged: (v) {},
-                                    ),
-                                    16.width,
-                                    Text('Login to rate this ${contentType.getContentTypeTitleSingular().toLowerCase()}', style: secondaryTextStyle(size: 12)),
-                                  ],
-                                ),
-                                16.height,
-                                AppButton(
-                                  text: 'Login',
-                                  textStyle: boldTextStyle(color: appColorPrimary, size: 14),
-                                  color: Colors.transparent,
-                                  shapeBorder: RoundedRectangleBorder(
-                                    borderRadius: radius(8),
-                                    side: BorderSide(color: appColorPrimary),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
-                                  onTap: () {
-                                    Get.to(() => SignInScreen());
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          16.height,
-                          Divider(color: context.dividerColor, height: 1),
-                          24.height,
-                        ],
-                        // Reviews List
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Reviews (${reviewCont.listContent.length})', style: boldTextStyle(size: 16)),
-                              Text('Most Recent', style: secondaryTextStyle(size: 12)),
-                            ],
-                          ),
-                        ),
-                        16.height,
-                        if (reviewCont.listContent.isEmpty)
-                          Column(
-                            children: [
-                              32.height,
-                              Icon(Icons.star_border, size: 64, color: textSecondaryColorGlobal.withOpacity(0.5)),
-                              16.height,
-                              Text('No reviews yet', style: boldTextStyle(size: 18)),
-                              8.height,
-                              Text('Be the first to rate this movie', style: secondaryTextStyle(size: 14)),
-                              32.height,
-                            ],
-                          ).center().visible(!reviewCont.isLoading.value)
-                        else
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: AnimatedWrap(
-                              runSpacing: 12,
-                              spacing: 12,
-                              itemCount: reviewCont.listContent.length,
-                              listAnimationType: commonListAnimationType,
-                              itemBuilder: (ctx, index) {
-                                ReviewModel reviewDetail = reviewCont.listContent[index];
-                                return ReviewCard(
-                                  reviewDetail: reviewDetail,
-                                  isLoggedInUser: reviewDetail.userId == loginUserData.value.id,
-                                  editCallback: () async {
-                                    reviewCont.onReviewCheck();
-                                    reviewCont.isEdit(true);
-                                    reviewCont.scrollController.animateTo(0, duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
-                                  },
-                                  deleteCallback: () {
-                                    reviewCont.deleteReview(reviewDetail.id);
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
+                Divider(color: textSecondaryColorGlobal.withOpacity(0.2)),
+                InkWell(
+                  onTap: _navigateToReviewList,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    alignment: Alignment.center,
+                    child: Text('See All Reviews >', style: boldTextStyle(color: textSecondaryColorGlobal, size: 14)),
+                  ),
+                ),
+              ],
+            ],
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget editReviewDialog(BuildContext context) {
+  Widget reviewForm(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 12,
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Rate this ${contentType.getContentTypeTitleSingular().toLowerCase()}',
-          style: boldTextStyle(size: 16),
+        GestureDetector(
+          onTap: () {
+            controller.isEditReview(false);
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                controller.content.value!.details.type == VideoType.tvshow
+                    ? locale.value.rateThisTvShow
+                    : locale.value.rateThisMovie,
+                style: boldTextStyle(),
+              ),
+              if (controller.isEditReview.value)
+                IconWidget(
+                  imgPath: Assets.iconsX,
+                  size: 16,
+                ),
+            ],
+          ),
         ),
-        8.height,
         Obx(
           () => RatingBarWidget(
-            size: 28,
+            size: 18,
             allowHalfRating: true,
-            activeColor: Colors.white,
-            inActiveColor: textSecondaryColorGlobal.withOpacity(0.5),
-            rating: reviewCont.ratingVal.value,
+            activeColor: goldColor,
+            inActiveColor: darkGrayTextColor,
+            rating: controller.userRating.value,
             spacing: 8,
             onRatingChanged: (rating) {
-              reviewCont.ratingVal(rating);
-              reviewCont.getBtnEnable();
+              controller.userRating(rating);
             },
           ),
         ),
-        8.height,
-        Text('Tap a star to rate', style: secondaryTextStyle(size: 12)),
-        16.height,
         AppTextField(
-          textStyle: commonPrimaryTextStyle(size: 14),
-          focus: reviewCont.focus,
-          controller: reviewCont.reviewCont,
+          controller: controller.userReviewCont,
           textFieldType: TextFieldType.MULTILINE,
+          minLines: 3,
+          maxLines: 5,
           decoration: inputDecoration(
             context,
-            hintText: 'Write your review (optional)',
-            fillColor: context.cardColor,
-            filled: true,
-          ).copyWith(
-            border: OutlineInputBorder(borderRadius: radius(12), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: radius(12), borderSide: BorderSide.none),
-            focusedBorder: OutlineInputBorder(borderRadius: radius(12), borderSide: BorderSide.none),
+            hintText: locale.value.shareYourThoughtsOnContent(
+              controller.content.value!.details.name,
+              controller.content.value!.details.type.getContentTypeTitleSingular(),
+            ),
+            contentPadding: const EdgeInsetsDirectional.all(12),
           ),
-          onChanged: (value) {
-            reviewCont.getBtnEnable();
-          },
         ),
-        16.height,
-        Obx(
-          () => IgnorePointer(
-            ignoring: !reviewCont.isBtnEnable.value,
-            child: AppButton(
-              width: double.infinity,
-              text: 'Submit Review',
-              disabledColor: context.cardColor.withOpacity(0.5),
-              color: reviewCont.isBtnEnable.value ? context.cardColor : context.cardColor.withOpacity(0.5),
-              textStyle: boldTextStyle(
-                color: reviewCont.isBtnEnable.value ? Colors.white : textSecondaryColorGlobal,
-              ),
-              shapeBorder: RoundedRectangleBorder(borderRadius: radius(12)),
-              onTap: () {
-                if (reviewCont.isLoading.value) return;
-                if (reviewCont.isBtnEnable.value) {
+        4.height,
+        AppButton(
+          text: locale.value.submit,
+          disabledColor: btnColor,
+          enabled: controller.userRating.value > 0 || controller.userReviewCont.text.isNotEmpty,
+          width: double.infinity,
+          color: appColorPrimary,
+          onTap: () {
+            if (controller.isLoading.value) return;
+            if (controller.showTrailer.value) {
+              controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
+            }
+            doIfLogin(
+              onLoggedIn: () {
+                if (isLoggedIn.value) {
                   hideKeyboard(context);
-                  reviewCont.editReview();
+                  controller.saveReview();
                 }
               },
-            ),
-          ),
+            );
+          },
         ),
       ],
     );
