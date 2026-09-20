@@ -84,8 +84,8 @@ class ReviewListController extends BaseListController<ReviewModel> {
     setLoading(true);
     await CoreServiceApis.addRating(
       request: {
-        ApiRequestKeys.idKey: review.id,
-        ApiRequestKeys.entertainmentIdKey: review.entertainmentId,
+        ApiRequestKeys.idKey: review.id > 0 ? review.id : "",
+        ApiRequestKeys.entertainmentIdKey: contentId,
         ApiRequestKeys.ratingKey: ratingVal.value,
         ApiRequestKeys.reviewKey: reviewCont.text,
       },
