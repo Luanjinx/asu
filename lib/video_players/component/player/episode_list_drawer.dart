@@ -67,7 +67,7 @@ class EpisodeListDrawer extends StatelessWidget {
                 if (episodes.isEmpty) {
                   return Center(
                     child: Text(
-                      locale.value.noData,
+                      locale.value.noDataFound,
                       style: primaryTextStyle(),
                     ),
                   );
