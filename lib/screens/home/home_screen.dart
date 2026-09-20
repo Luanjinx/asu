@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:nb_utils/nb_utils.dart';
@@ -48,11 +49,18 @@ class HomeScreen extends StatelessWidget {
               if (homeScreenController.scrollController.hasClients) {
                 offset = homeScreenController.scrollController.offset;
               }
-              double opacity = (offset / 100.0).clamp(0.0, 1.0);
+              double blurAlpha = (offset / 100.0).clamp(0.0, 1.0);
+              double colorAlpha = ((offset - 100.0) / 100.0).clamp(0.0, 1.0);
               
               return AppBar(
-                backgroundColor: appScreenBackgroundDark.withOpacity(opacity),
+                backgroundColor: appScreenBackgroundDark.withOpacity(colorAlpha),
                 elevation: 0,
+                flexibleSpace: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: blurAlpha * 10, sigmaY: blurAlpha * 10),
+                    child: Container(color: Colors.transparent),
+                  ),
+                ),
                 automaticallyImplyLeading: false,
                 toolbarHeight: kToolbarHeight,
                 title: Row(
@@ -183,6 +191,7 @@ class HomeScreen extends StatelessWidget {
                     BannerWidget(
                       sliderController: sliderCtrl,
                       tag: AppRoutes.home,
+                      expandedHeight: Get.height * 0.55,
                     ),
                   ShortDramaBridge.buildContent(
                     homeScreenController,
