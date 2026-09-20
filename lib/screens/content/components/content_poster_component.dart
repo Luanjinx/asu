@@ -26,6 +26,7 @@ class ContentListComponent extends StatelessWidget {
   final bool isLoading;
   final VoidCallback? onTap;
   final bool isHorizontalList;
+  final bool isSlider;
   final double spacing;
 
   const ContentListComponent({
@@ -35,6 +36,7 @@ class ContentListComponent extends StatelessWidget {
     this.isLoading = false,
     this.onTap,
     this.isHorizontalList = false,
+    this.isSlider = false,
     this.spacing = 12,
   });
 
@@ -46,7 +48,8 @@ class ContentListComponent extends StatelessWidget {
       desiredSpacing: spacing,
     );
 
-    double itemHeight = isHorizontalList ? Get.height * 0.12 : Get.height * 0.20;
+    double itemWidth = isSlider ? (Get.width * 0.28) : dynamicSpacing.$1;
+    double itemHeight = isHorizontalList ? Get.height * 0.12 : (isSlider ? Get.height * 0.18 : Get.height * 0.20);
 
     return InkWell(
       splashColor: Colors.transparent,
@@ -75,7 +78,7 @@ class ContentListComponent extends StatelessWidget {
         children: [
           CachedImageWidget(
             height: itemHeight,
-            width: dynamicSpacing.$1,
+            width: itemWidth,
             url: contentData.posterImage,
             fit: BoxFit.cover,
             alignment: Alignment.topCenter,
@@ -85,7 +88,7 @@ class ContentListComponent extends StatelessWidget {
           if (topTenIndex > -1)
             Container(
               height: itemHeight,
-              width: dynamicSpacing.$1,
+              width: itemWidth,
               decoration: BoxDecoration(
                 borderRadius: radius(6),
                 gradient: LinearGradient(
