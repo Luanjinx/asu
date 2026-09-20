@@ -1,135 +1,204 @@
-import 'dart:async';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:streamit_laravel/controllers/base_controller.dart';
+import 'package:nb_utils/nb_utils.dart';
+import 'package:streamit_laravel/generated/assets.dart';
+import 'package:streamit_laravel/main.dart';
 import 'package:streamit_laravel/models/base_response_model.dart';
-import 'package:streamit_laravel/network/core_api.dart';
+import 'package:streamit_laravel/screens/content/components/rating_summary_card.dart';
 import 'package:streamit_laravel/screens/content/content_details_controller.dart';
+import 'package:streamit_laravel/screens/review/components/review_card.dart';
 import 'package:streamit_laravel/screens/review/model/review_model.dart';
-import 'package:streamit_laravel/utils/api_end_points.dart';
+import 'package:streamit_laravel/screens/review/review_list_screen.dart';
+import 'package:streamit_laravel/utils/colors.dart';
 import 'package:streamit_laravel/utils/common_base.dart';
 import 'package:streamit_laravel/utils/common_functions.dart';
+import 'package:streamit_laravel/utils/constants.dart';
+import 'package:streamit_laravel/utils/extension/string_extension.dart';
 
-class ReviewListController extends BaseListController<ReviewModel> {
-  RxBool isBtnEnable = false.obs;
-  TextEditingController reviewCont = TextEditingController();
-  FocusNode focus = FocusNode();
-  RxDouble ratingVal = 0.0.obs;
-  RxBool isEdit = false.obs;
+class ReviewComponent extends StatelessWidget {
+  final ContentDetailsController controller;
 
-  int contentId = 0;
+  const ReviewComponent({super.key, required this.controller});
 
-  ReviewModel review = ReviewModel();
-
-  @override
-  void onInit() {
-    if (Get.arguments is ArgumentModel) {
-      contentId = (Get.arguments as ArgumentModel).intArgument;
-      update([contentId]);
-      if (contentId > 0) getListData(showLoader: false);
+  void _navigateToReviewList() {
+    if (controller.showTrailer.value) {
+      controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
     }
-    super.onInit();
-  }
-
-  void getBtnEnable() {
-    if (review.review.isNotEmpty) {
-      if (reviewCont.text.isNotEmpty || reviewCont.text != review.review || ratingVal.value != review.rating) {
-        isBtnEnable(true);
-      } else {
-        isBtnEnable(false);
-      }
-    } else {
-      if (reviewCont.text.isNotEmpty || ratingVal.value != 0.0) {
-        isBtnEnable(true);
-        isEdit(true);
-      } else {
-        isBtnEnable(false);
-        isEdit(true);
-      }
-    }
-  }
-
-  Future<void> deleteReview(int id) async {
-    setLoading(true);
-    await CoreServiceApis.deleteRating(
-      request: {ApiRequestKeys.idKey: id},
-    ).then((value) async {
-      successSnackBar(value.message.toString());
-      getListData();
-      if (Get.isRegistered<ContentDetailsController>()) {
-        Get.find<ContentDetailsController>().getContentData(
-          starTrailer: false,
-        );
-      }
-    }).catchError((e) {
-      errorSnackBar(error: e);
-    }).whenComplete(() {
-      Get.back();
-      setLoading(false);
-    });
-  }
-
-  void onReviewCheck() {
-    if (review.review.isNotEmpty) {
-      reviewCont.text = review.review;
-    }
-    if (review.rating > -1) {
-      ratingVal(double.parse(review.rating.toString()));
-    }
-  }
-
-  Future<void> editReview() async {
-    setLoading(true);
-    Map<String, dynamic> req = {
-      ApiRequestKeys.entertainmentIdKey: contentId,
-      ApiRequestKeys.ratingKey: ratingVal.value,
-      ApiRequestKeys.reviewKey: reviewCont.text,
-    };
-    if (review.id > 0) {
-      req[ApiRequestKeys.idKey] = review.id;
-    }
-
-    await CoreServiceApis.addRating(
-      request: req,
-    ).then((value) async {
-      isEdit(false);
-      isBtnEnable(false);
-      successSnackBar(value.message);
-      getListData();
-      if (Get.isRegistered<ContentDetailsController>()) {
-        Get.find<ContentDetailsController>().getContentData(starTrailer: false);
-      }
-    }).catchError((e) {
-      errorSnackBar(error: e);
-    }).whenComplete(() => isLoading(false));
-  }
-
-  ///Get Review List
-  ///
-  @override
-  Future<void> getListData({bool showLoader = true}) async {
-    setLoading(showLoader);
-
-    await listContentFuture(
-      CoreServiceApis.getReviewList(
-        page: currentPage.value,
-        contentId: contentId,
-        reviewList: listContent,
-        lastPageCallBack: (p0) {
-          isLastPage(p0);
-        },
+    final details = controller.content.value!.details;
+    Get.to(
+      () => ReviewListScreen(
+        movieName: details.name,
+        contentType: details.type,
+        posterImage: details.thumbnailImage,
+        averageRating: double.tryParse(details.imdbRating) ?? 0.0,
+        totalReviews: controller.content.value!.reviews?.totalReviews ?? 0,
       ),
-    ).then((value) {
-      if (isLoggedIn.value) {
-        int usersReviewIndex = value.indexWhere((element) => element.userId == loginUserData.value.id);
-        if (usersReviewIndex > -1) {
-          review = value[usersReviewIndex];
+      arguments: ArgumentModel(intArgument: controller.content.value!.id),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () {
+        if (controller.content.value == null ||
+            (controller.content.value != null &&
+                (controller.content.value!.details.type == VideoType.video ||
+                    controller.content.value!.details.type == VideoType.episode))) {
+          return const Offstage();
         }
-      }
-    }).catchError((e) {
-      throw e;
-    }).whenComplete(() => setLoading(false));
+        final hasReviews = controller.content.value!.isReviewAvailable;
+        final details = controller.content.value!.reviews;
+        final myReview = details?.myReview;
+        final otherReviews = details?.otherReviewList;
+
+        List<ReviewModel> allReviews = [];
+        if (myReview != null) allReviews.add(myReview);
+        if (otherReviews != null) allReviews.addAll(otherReviews);
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: boxDecorationDefault(
+            color: context.cardColor,
+            borderRadius: radius(12),
+          ),
+          child: Column(
+            spacing: 16,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Ratings & Reviews', style: boldTextStyle(size: 18)),
+                  if (hasReviews)
+                    InkWell(
+                      onTap: _navigateToReviewList,
+                      borderRadius: radius(24),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: appColorPrimary),
+                          borderRadius: radius(24),
+                        ),
+                        child: Text('Write a Review', style: boldTextStyle(size: 12, color: appColorPrimary)),
+                      ),
+                    ),
+                ],
+              ),
+              if (hasReviews)
+                RatingSummaryCard(
+                  averageRating: double.tryParse(controller.content.value!.details.imdbRating) ?? 0.0,
+                  totalReviews: details?.totalReviews ?? 0,
+                  reviews: allReviews,
+                  isLoggedIn: isLoggedIn.value,
+                  onRateAction: _navigateToReviewList,
+                ),
+              if (hasReviews && allReviews.isNotEmpty) ...[
+                Divider(color: textSecondaryColorGlobal.withOpacity(0.2)),
+                ReviewCard(
+                  reviewDetail: allReviews.first,
+                  isLoggedInUser: allReviews.first.userId == loginUserData.value.id,
+                  editCallback: _navigateToReviewList,
+                  deleteCallback: () {
+                    controller.deleteReview();
+                  },
+                ),
+                Divider(color: textSecondaryColorGlobal.withOpacity(0.2)),
+                InkWell(
+                  onTap: _navigateToReviewList,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    alignment: Alignment.center,
+                    child: Text('See All Reviews >', style: boldTextStyle(color: textSecondaryColorGlobal, size: 14)),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget reviewForm(BuildContext context) {
+    return Column(
+      spacing: 12,
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            controller.isEditReview(false);
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                controller.content.value!.details.type == VideoType.tvshow
+                    ? locale.value.rateThisTvShow
+                    : locale.value.rateThisMovie,
+                style: boldTextStyle(),
+              ),
+              if (controller.isEditReview.value)
+                IconWidget(
+                  imgPath: Assets.iconsX,
+                  size: 16,
+                ),
+            ],
+          ),
+        ),
+        Obx(
+          () => RatingBarWidget(
+            size: 18,
+            allowHalfRating: true,
+            activeColor: goldColor,
+            inActiveColor: darkGrayTextColor,
+            rating: controller.userRating.value,
+            spacing: 8,
+            onRatingChanged: (rating) {
+              controller.userRating(rating);
+            },
+          ),
+        ),
+        AppTextField(
+          controller: controller.userReviewCont,
+          textFieldType: TextFieldType.MULTILINE,
+          minLines: 3,
+          maxLines: 5,
+          decoration: inputDecoration(
+            context,
+            hintText: locale.value.shareYourThoughtsOnContent(
+              controller.content.value!.details.name,
+              controller.content.value!.details.type.getContentTypeTitleSingular(),
+            ),
+            contentPadding: const EdgeInsetsDirectional.all(12),
+          ),
+        ),
+        4.height,
+        AppButton(
+          text: locale.value.submit,
+          disabledColor: btnColor,
+          enabled: controller.userRating.value > 0 || controller.userReviewCont.text.isNotEmpty,
+          width: double.infinity,
+          color: appColorPrimary,
+          onTap: () {
+            if (controller.isLoading.value) return;
+            if (controller.showTrailer.value) {
+              controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
+            }
+            doIfLogin(
+              onLoggedIn: () {
+                if (isLoggedIn.value) {
+                  hideKeyboard(context);
+                  controller.saveReview();
+                }
+              },
+            );
+          },
+        ),
+      ],
+    );
   }
 }
