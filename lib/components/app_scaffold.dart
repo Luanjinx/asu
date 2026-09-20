@@ -132,6 +132,7 @@ class NewAppScaffold extends StatelessWidget {
 
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final Widget? drawer;
+  final Widget? endDrawer;
   final Widget? bottomNavigationBar;
 
   final Widget? appBarWidget;
@@ -164,6 +165,7 @@ class NewAppScaffold extends StatelessWidget {
     this.onRefresh,
     this.statusBarColor,
     this.drawer,
+    this.endDrawer,
     this.appBarWidget,
     this.scrollController,
     this.bodyPadding,
@@ -288,7 +290,9 @@ class NewAppScaffold extends StatelessWidget {
       right: false,
       child: Scaffold(
         drawer: drawer,
+        endDrawer: endDrawer,
         drawerEnableOpenDragGesture: MediaQuery.of(context).orientation == Orientation.landscape,
+        endDrawerEnableOpenDragGesture: MediaQuery.of(context).orientation == Orientation.landscape,
         extendBodyBehindAppBar: false,
         resizeToAvoidBottomInset: resizeToAvoidBottomPadding,
         backgroundColor: scaffoldBackgroundColor ?? appScreenBackgroundDark,
