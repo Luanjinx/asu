@@ -6,7 +6,7 @@ import 'package:streamit_laravel/main.dart';
 import 'package:streamit_laravel/models/base_response_model.dart';
 import 'package:streamit_laravel/screens/content/content_details_controller.dart';
 import 'package:streamit_laravel/screens/review/components/review_card.dart';
-import 'package:streamit_laravel/screens/review/review_list_screen.dart';
+import '../../review/review_list_screen.dart';
 import 'package:streamit_laravel/utils/colors.dart';
 import 'package:streamit_laravel/utils/common_base.dart';
 import 'package:streamit_laravel/utils/common_functions.dart';
