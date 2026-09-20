@@ -87,12 +87,19 @@ class ReviewComponent extends StatelessWidget {
                   reviews: allReviews,
                   isLoggedIn: isLoggedIn.value,
                   onRateAction: () {
-                    if (isLoggedIn.value) {
-                      controller.openReviewDialog();
-                      controller.isEditReview(myReview != null);
-                    } else {
-                      Get.to(() => SignInScreen());
+                    if (controller.showTrailer.value) {
+                      controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
                     }
+                    Get.to(
+                      () => ReviewListScreen(
+                        movieName: controller.content.value!.details.name,
+                        contentType: controller.content.value!.details.type,
+                        posterImage: controller.content.value!.details.thumbnailImage,
+                        averageRating: double.tryParse(controller.content.value!.details.imdbRating) ?? 0.0,
+                        totalReviews: details?.totalReviews ?? 0,
+                      ),
+                      arguments: ArgumentModel(intArgument: controller.content.value!.id),
+                    );
                   },
                 ),
               if (hasReviews && allReviews.isNotEmpty) ...[
@@ -101,8 +108,19 @@ class ReviewComponent extends StatelessWidget {
                   reviewDetail: allReviews.first,
                   isLoggedInUser: allReviews.first.userId == loginUserData.value.id,
                   editCallback: () {
-                    controller.openReviewDialog();
-                    controller.isEditReview(true);
+                    if (controller.showTrailer.value) {
+                      controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
+                    }
+                    Get.to(
+                      () => ReviewListScreen(
+                        movieName: controller.content.value!.details.name,
+                        contentType: controller.content.value!.details.type,
+                        posterImage: controller.content.value!.details.thumbnailImage,
+                        averageRating: double.tryParse(controller.content.value!.details.imdbRating) ?? 0.0,
+                        totalReviews: details?.totalReviews ?? 0,
+                      ),
+                      arguments: ArgumentModel(intArgument: controller.content.value!.id),
+                    );
                   },
                   deleteCallback: () {
                     controller.deleteReview();
