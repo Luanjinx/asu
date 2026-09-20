@@ -40,7 +40,9 @@ class CustomPodPlayerControlOverlay extends StatelessWidget {
   final bool showCastButton;
   final bool showSettingsButton;
   final bool showMuteButton;
+  final bool showEpisodeListButton;
 
+  final VoidCallback? onEpisodeList;
   final bool isMuted;
 
   final String thumbnailUrl;
@@ -69,6 +71,8 @@ class CustomPodPlayerControlOverlay extends StatelessWidget {
     this.showCastButton = false,
     this.showSettingsButton = false,
     this.showMuteButton = false,
+    this.showEpisodeListButton = false,
+    this.onEpisodeList,
     this.isMuted = false,
     required this.isFullScreen,
     this.onUserInteract,
@@ -172,6 +176,18 @@ class CustomPodPlayerControlOverlay extends StatelessWidget {
                             child: IconWidget(
                               imgPath: isMuted ? Assets.iconsSpeakerSimpleX : Assets.iconsSpeakerHigh,
                             ),
+                          ),
+                        ),
+                      if (showEpisodeListButton)
+                        GestureDetector(
+                          onTap: () {
+                            onEpisodeList?.call();
+                            onUserInteract?.call();
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: Container(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Icon(Icons.format_list_bulleted, color: Colors.white, size: 24),
                           ),
                         ),
                       if (showSettingsButton)
