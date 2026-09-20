@@ -409,6 +409,7 @@ class ContentDetailsScreen extends StatelessWidget {
                                                   remainingEpisodes: contentDetailsController.episodeList.isNotEmpty
                                                       ? contentDetailsController.episodeList.sublist(contentDetailsController.currentEpisodeIndex.value + 1)
                                                       : const <PosterDataModel>[],
+                                                  allEpisodes: contentDetailsController.episodeList,
                                                 ),
                                                 arguments: contentDetailsController.content.value,
                                               )?.then((value) {
@@ -964,6 +965,7 @@ class ContentDetailsScreen extends StatelessWidget {
       () => VideoScreen(
         remainingEpisodes:
             contentDetailsController.episodeList.isNotEmpty ? contentDetailsController.episodeList.sublist(contentDetailsController.currentEpisodeIndex.value + 1) : const <PosterDataModel>[],
+        allEpisodes: contentDetailsController.episodeList,
       ),
       arguments: contentDetailsController.content.value,
     )?.then((value) {
