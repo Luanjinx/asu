@@ -92,6 +92,8 @@ class ReviewListController extends BaseListController<ReviewModel> {
     ).then((value) async {
       isEdit(false);
       isBtnEnable(false);
+      reviewCont.clear();
+      ratingVal(0.0);
       successSnackBar(value.message);
       getListData();
       if (Get.isRegistered<ContentDetailsController>()) {
