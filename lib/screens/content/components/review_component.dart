@@ -6,7 +6,7 @@ import 'package:streamit_laravel/main.dart';
 import 'package:streamit_laravel/models/base_response_model.dart';
 import 'package:streamit_laravel/screens/content/content_details_controller.dart';
 import 'package:streamit_laravel/screens/review/components/review_card.dart';
-import 'package:streamit_laravel/screens/review/review_list_screen.dart' as rls;
+import 'package:streamit_laravel/screens/review/review_list_screen.dart';
 import 'package:streamit_laravel/utils/colors.dart';
 import 'package:streamit_laravel/utils/common_base.dart';
 import 'package:streamit_laravel/utils/common_functions.dart';
@@ -58,7 +58,7 @@ class ReviewComponent extends StatelessWidget {
                           controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
                         }
                         Get.to(
-                          () => new rls.ReviewListScreen(
+                          () => ReviewListScreen(
                             movieName: controller.content.value!.details.name,
                             contentType: controller.content.value!.details.type,
                             posterImage: controller.content.value!.details.thumbnailImage,
@@ -91,7 +91,7 @@ class ReviewComponent extends StatelessWidget {
                       controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
                     }
                     Get.to(
-                      () => new rls.ReviewListScreen(
+                      () => ReviewListScreen(
                         movieName: controller.content.value!.details.name,
                         contentType: controller.content.value!.details.type,
                         posterImage: controller.content.value!.details.thumbnailImage,
@@ -112,7 +112,7 @@ class ReviewComponent extends StatelessWidget {
                       controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
                     }
                     Get.to(
-                      () => new rls.ReviewListScreen(
+                      () => ReviewListScreen(
                         movieName: controller.content.value!.details.name,
                         contentType: controller.content.value!.details.type,
                         posterImage: controller.content.value!.details.thumbnailImage,
@@ -133,7 +133,7 @@ class ReviewComponent extends StatelessWidget {
                       controller.removeTrailerControllerIfAlreadyExist(controller.currentTrailerData.value.id);
                     }
                     Get.to(
-                      () => new rls.ReviewListScreen(
+                      () => ReviewListScreen(
                         movieName: controller.content.value!.details.name,
                         contentType: controller.content.value!.details.type,
                         posterImage: controller.content.value!.details.thumbnailImage,
