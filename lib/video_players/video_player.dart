@@ -20,6 +20,7 @@ import 'package:streamit_laravel/video_players/component/common/custom_overlay.d
 import 'package:streamit_laravel/video_players/component/common/thumbnail_component.dart';
 import 'package:streamit_laravel/video_players/component/player/embeded_video_player_component.dart';
 import 'package:streamit_laravel/video_players/component/player/pod_video_player_component.dart';
+import 'package:streamit_laravel/video_players/component/player/episode_list_drawer.dart';
 import 'package:streamit_laravel/video_players/video_player_controller.dart';
 import 'package:streamit_laravel/video_players/video_settings_dialog.dart';
 
@@ -48,6 +49,7 @@ class VideoPlayersComponent extends StatelessWidget {
         statusBarColor: isLandscape ? appScreenBackgroundDark : null,
         applyLeadingBackButton: !isLandscape,
         drawer: VideoSettingsDialog(videoPlayerController: controller),
+        endDrawer: EpisodeListDrawer(videoPlayerController: controller),
         body: Builder(
           builder: (BuildContext scaffoldContext) {
             isLandscape = MediaQuery.of(scaffoldContext).orientation == Orientation.landscape;
@@ -299,6 +301,10 @@ class VideoPlayersComponent extends StatelessWidget {
                     controller.videoModel.details.type != VideoType.liveTv,
                 onSettings: () {
                   Scaffold.of(ctx).openDrawer();
+                },
+                showEpisodeListButton: controller.allEpisodes.isNotEmpty && !controller.isFromDownloads && controller.stage.value != VideoPlayerStage.adPlaying,
+                onEpisodeList: () {
+                  Scaffold.of(ctx).openEndDrawer();
                 },
                 showMuteButton: !controller.isFromDownloads && controller.stage.value != VideoPlayerStage.adPlaying && controller.stage.value == VideoPlayerStage.playing,
                 isMuted: controller.playerManager.isMuted.value,
