@@ -7,6 +7,7 @@ import 'package:streamit_laravel/video_players/video_player_controller.dart';
 class VideoScreen extends StatelessWidget {
   final bool isFromDownloads;
   final List<PosterDataModel> remainingEpisodes;
+  final List<PosterDataModel> allEpisodes;
   final String title;
 
   final Function(ContentModel newEpisodeData)? onEpisodeChanged;
@@ -15,6 +16,7 @@ class VideoScreen extends StatelessWidget {
     super.key,
     this.isFromDownloads = false,
     this.remainingEpisodes = const <PosterDataModel>[],
+    this.allEpisodes = const <PosterDataModel>[],
     this.title = '',
     this.onEpisodeChanged,
   });
@@ -29,6 +31,7 @@ class VideoScreen extends StatelessWidget {
       init: Get.put(
         VideoPlayersController(
           remainingEpisodes: remainingEpisodes,
+          allEpisodes: allEpisodes,
           isFromDownloads: isFromDownloads,
           onEpisodeChanged: onEpisodeChanged,
         ),
