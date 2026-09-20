@@ -42,6 +42,7 @@ class VideoPlayersController extends GetxController with WidgetsBindingObserver 
   RxString currentVideoType = ''.obs;
   Rx<SubtitleModel> currentSubtitle = SubtitleModel().obs;
   RxList<PosterDataModel> remainingEpisodes = <PosterDataModel>[].obs;
+  RxList<PosterDataModel> allEpisodes = <PosterDataModel>[].obs;
 
   final Function(ContentModel newEpisodeData)? onEpisodeChanged;
 
@@ -60,11 +61,15 @@ class VideoPlayersController extends GetxController with WidgetsBindingObserver 
 
   VideoPlayersController({
     List<PosterDataModel>? remainingEpisodes,
+    List<PosterDataModel>? allEpisodes,
     this.isFromDownloads = false,
     this.onEpisodeChanged,
   }) {
     if (remainingEpisodes != null) {
       this.remainingEpisodes.assignAll(remainingEpisodes);
+    }
+    if (allEpisodes != null) {
+      this.allEpisodes.assignAll(allEpisodes);
     }
   }
 
@@ -423,6 +428,21 @@ class VideoPlayersController extends GetxController with WidgetsBindingObserver 
     await playerManager.stop();
 
     await getEpisodeContentData(episodeData: remainingEpisodes.first);
+  }
+
+  Future<void> playSpecificEpisode(PosterDataModel episode) async {
+    // Stop current playback
+    await playerManager.stop();
+
+    await getEpisodeContentData(episodeData: episode);
+    
+    // Recalculate remaining episodes
+    int index = allEpisodes.indexWhere((element) => element.id == episode.id);
+    if (index != -1 && index + 1 < allEpisodes.length) {
+      remainingEpisodes.assignAll(allEpisodes.sublist(index + 1));
+    } else {
+      remainingEpisodes.clear();
+    }
   }
 
   //endregion
