@@ -160,33 +160,10 @@ class VideoSettingsDialog extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // Thumbnail
-                  SizedBox(
-                    width: 100,
-                    height: 60,
-                    child: Stack(
-                      children: [
-                        CachedImageWidget(
-                          url: episode.posterImage,
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                          radius: 6,
-                        ),
-                        if (isPlaying)
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.black45,
-                              borderRadius: radius(6),
-                            ),
-                            child: Center(
-                              child: Icon(Icons.play_circle_fill, color: appColorPrimary, size: 24),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  12.width,
+                  if (isPlaying) ...[
+                    Icon(Icons.play_arrow, color: appColorPrimary, size: 20),
+                    8.width,
+                  ],
                   // Title & Duration
                   Expanded(
                     child: Column(
@@ -201,12 +178,13 @@ class VideoSettingsDialog extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        4.height,
-                        if (episode.details.duration.isNotEmpty)
+                        if (episode.details.duration.isNotEmpty) ...[
+                          4.height,
                           Text(
                             episode.details.duration,
                             style: secondaryTextStyle(size: 12),
                           ),
+                        ],
                       ],
                     ),
                   ),
