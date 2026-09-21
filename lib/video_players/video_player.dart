@@ -20,7 +20,6 @@ import 'package:streamit_laravel/video_players/component/common/custom_overlay.d
 import 'package:streamit_laravel/video_players/component/common/thumbnail_component.dart';
 import 'package:streamit_laravel/video_players/component/player/embeded_video_player_component.dart';
 import 'package:streamit_laravel/video_players/component/player/pod_video_player_component.dart';
-import 'package:streamit_laravel/video_players/component/player/episode_list_drawer.dart';
 import 'package:streamit_laravel/video_players/video_player_controller.dart';
 import 'package:streamit_laravel/video_players/video_settings_dialog.dart';
 
