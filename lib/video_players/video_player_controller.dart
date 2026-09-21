@@ -56,15 +56,19 @@ class VideoPlayersController extends GetxController with WidgetsBindingObserver 
   Duration _lastSavedPosition = Duration.zero;
   RxString subtitleText = ''.obs;
   bool isFromDownloads = false;
+  bool isEmbedded = false;
 
   //endregion
 
   VideoPlayersController({
+    required ContentModel contentModel,
     List<PosterDataModel>? remainingEpisodes,
     List<PosterDataModel>? allEpisodes,
     this.isFromDownloads = false,
+    this.isEmbedded = false,
     this.onEpisodeChanged,
   }) {
+    videoModel = contentModel;
     if (remainingEpisodes != null) {
       this.remainingEpisodes.assignAll(remainingEpisodes);
     }
@@ -76,11 +80,13 @@ class VideoPlayersController extends GetxController with WidgetsBindingObserver 
   //region Initialization
   @override
   void onInit() {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    if (!isEmbedded) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    }
     super.onInit();
     WidgetsBinding.instance.addObserver(this);
     adManager = AdManager(playerManager);
@@ -89,15 +95,8 @@ class VideoPlayersController extends GetxController with WidgetsBindingObserver 
     playerManager.onProgress = _onProgress;
     playerManager.onEvent = _onPlayerEvent;
 
-    // Get arguments
-    if (Get.arguments is ContentModel) {
-      videoModel = Get.arguments;
-      initializeVideo();
-    } else {
-      hasError(true);
-      isBuffering(false);
-      errorMessage("No video data provided");
-    }
+    // We already have videoModel from constructor
+    initializeVideo();
 
     // Set up PiP mode change handler (Android) so we get callbacks when user exits PiP
     if (Platform.isAndroid) {
