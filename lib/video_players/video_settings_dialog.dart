@@ -22,7 +22,9 @@ class VideoSettingsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool hasEpisodes = videoPlayerController.allEpisodes.isNotEmpty;
+    bool hasEpisodes = videoPlayerController.allEpisodes.isNotEmpty ||
+        videoPlayerController.videoModel.details.type == VideoType.episode ||
+        videoPlayerController.videoModel.details.type == VideoType.tvshow;
     int tabLength = hasEpisodes ? 3 : 2;
 
     return Drawer(
