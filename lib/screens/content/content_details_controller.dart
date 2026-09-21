@@ -38,6 +38,7 @@ class ContentDetailsController extends BaseController<ContentModel> {
   RxBool showTrailer = false.obs;
   RxBool showShimmer = false.obs;
   RxBool showEpisodeListShimmer = false.obs;
+  RxBool isPlayingMainVideo = false.obs;
 
   Rx<VideoData> currentTrailerData = VideoData().obs;
 
