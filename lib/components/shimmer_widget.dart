@@ -38,7 +38,7 @@ class ShimmerWidget extends StatelessWidget {
       baseColor: shimmerPrimaryBaseColor,
       highlightColor: highlightColor ?? shimmerHighLightBaseColor,
       direction: ShimmerDirection.ltr,
-      period: const Duration(seconds: 2),
+      period: const Duration(seconds: 1),
       child: child ??
           Container(
             height: height?.validate(),
