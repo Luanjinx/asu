@@ -26,39 +26,25 @@ import 'package:streamit_laravel/video_players/video_settings_dialog.dart';
 // ignore: must_be_immutable
 class VideoPlayersComponent extends StatelessWidget {
   final VideoPlayersController controller;
+  final bool isEmbedded;
 
-  const VideoPlayersComponent({super.key, required this.controller});
+  const VideoPlayersComponent({super.key, required this.controller, this.isEmbedded = false});
 
   @override
   Widget build(BuildContext context) {
     bool isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
-    return PopScope(
-      canPop: true,
-      onPopInvokedWithResult: (didPop, result) {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-      },
-      child: NewAppScaffold(
-        isPinnedAppbar: true,
-        bodyPadding: EdgeInsets.zero,
-        isScrollableWidget: !isLandscape,
-        appBarTitleText: controller.videoModel.details.name,
-        hideAppBar: isLandscape,
-        statusBarColor: isLandscape ? appScreenBackgroundDark : null,
-        applyLeadingBackButton: !isLandscape,
-        drawer: VideoSettingsDialog(videoPlayerController: controller),
-        body: Builder(
-          builder: (BuildContext scaffoldContext) {
-            isLandscape = MediaQuery.of(scaffoldContext).orientation == Orientation.landscape;
-            return AnimatedWrap(
-              alignment: WrapAlignment.center,
-              runSpacing: 16,
-              spacing: 16,
-              children: [
-                SizedBox(
-                  height: !isLandscape ? Get.height * 0.24 : Get.height,
-                  width: Get.width,
+    Widget playerBody = Builder(
+      builder: (BuildContext scaffoldContext) {
+        isLandscape = MediaQuery.of(scaffoldContext).orientation == Orientation.landscape;
+        return AnimatedWrap(
+          alignment: WrapAlignment.center,
+          runSpacing: 16,
+          spacing: 16,
+          children: [
+            SizedBox(
+              height: !isLandscape ? (isEmbedded ? Get.height * 0.35 : Get.height * 0.24) : Get.height,
+              width: Get.width,
                   child: Obx(() {
                     if (!isLoggedIn.value) {
                       return GestureDetector(
@@ -149,7 +135,28 @@ class VideoPlayersComponent extends StatelessWidget {
               ],
             );
           },
-        ),
+        );
+
+    if (isEmbedded) {
+      return playerBody;
+    }
+
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (didPop, result) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      },
+      child: NewAppScaffold(
+        isPinnedAppbar: true,
+        bodyPadding: EdgeInsets.zero,
+        isScrollableWidget: !isLandscape,
+        appBarTitleText: controller.videoModel.details.name,
+        hideAppBar: isLandscape,
+        statusBarColor: isLandscape ? appScreenBackgroundDark : null,
+        applyLeadingBackButton: !isLandscape,
+        drawer: VideoSettingsDialog(videoPlayerController: controller),
+        body: playerBody,
       ),
     );
   }
