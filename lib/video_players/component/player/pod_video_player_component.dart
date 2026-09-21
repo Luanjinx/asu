@@ -92,10 +92,6 @@ class PodVideoPlayerComponent extends StatelessWidget {
             onSettings: () {
               Scaffold.of(context).openDrawer();
             },
-            showEpisodeListButton: controller.allEpisodes.isNotEmpty && !controller.isFromDownloads && controller.stage.value != VideoPlayerStage.adPlaying,
-            onEpisodeList: () {
-              Scaffold.of(context).openEndDrawer();
-            },
             showMuteButton: !controller.isFromDownloads && controller.stage.value != VideoPlayerStage.adPlaying && controller.stage.value == VideoPlayerStage.playing,
             isMuted: controller.playerManager.isMuted.value,
             onToggleMute: () {
