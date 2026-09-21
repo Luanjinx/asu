@@ -86,6 +86,8 @@ class ContentDetailsScreen extends StatelessWidget {
                               tag: 'video_controller_${contentDetailsController.content.value!.id}',
                               init: Get.put(
                                 VideoPlayersController(
+                                  contentModel: contentDetailsController.content.value!,
+                                  isEmbedded: true,
                                   remainingEpisodes: contentDetailsController.episodeList.isNotEmpty ? contentDetailsController.episodeList.sublist(contentDetailsController.currentEpisodeIndex.value + 1) : const <PosterDataModel>[],
                                   allEpisodes: contentDetailsController.episodeList,
                                 ),
