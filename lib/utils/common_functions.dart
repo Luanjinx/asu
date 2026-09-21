@@ -698,16 +698,16 @@ DateTime? _parseFlexibleDate(String input) {
 
 Future<void> secureScreen() async {
   // Screenshot block
-  await ScreenProtector.preventScreenshotOn();
+  // await ScreenProtector.preventScreenshotOn();
 
   // Screen recording / data leakage block
-  await ScreenProtector.protectDataLeakageOn();
+  // await ScreenProtector.protectDataLeakageOn();
 }
 
 Future<void> removeSecureScreen() async {
-  await ScreenProtector.preventScreenshotOff();
+  // await ScreenProtector.preventScreenshotOff();
 
-  await ScreenProtector.protectDataLeakageOff();
+  // await ScreenProtector.protectDataLeakageOff();
 }
 
 Future<void> downloadAndOpenFile({
