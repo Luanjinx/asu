@@ -30,6 +30,7 @@ class VideoScreen extends StatelessWidget {
       tag: tag,
       init: Get.put(
         VideoPlayersController(
+          contentModel: Get.arguments,
           remainingEpisodes: remainingEpisodes,
           allEpisodes: allEpisodes,
           isFromDownloads: isFromDownloads,
