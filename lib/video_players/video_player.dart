@@ -49,7 +49,6 @@ class VideoPlayersComponent extends StatelessWidget {
         statusBarColor: isLandscape ? appScreenBackgroundDark : null,
         applyLeadingBackButton: !isLandscape,
         drawer: VideoSettingsDialog(videoPlayerController: controller),
-        endDrawer: EpisodeListDrawer(videoPlayerController: controller),
         body: Builder(
           builder: (BuildContext scaffoldContext) {
             isLandscape = MediaQuery.of(scaffoldContext).orientation == Orientation.landscape;
