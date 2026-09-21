@@ -51,7 +51,7 @@ class CachedImageWidget extends StatelessWidget {
     );
   }
 
-/*  int? _getMemCacheWidth() {
+  int? _getMemCacheWidth() {
     if (width != null && width != double.infinity) {
       return (width! * Get.pixelRatio).toInt();
     }
@@ -63,7 +63,7 @@ class CachedImageWidget extends StatelessWidget {
       return (height! * Get.pixelRatio).toInt();
     }
     return null;
-  }*/
+  }
 
   Widget _buildImageWidget() {
     if (url.validate().isEmpty) {
@@ -98,6 +98,8 @@ class CachedImageWidget extends StatelessWidget {
         fit: fit ?? BoxFit.cover,
         color: color,
         alignment: alignment as Alignment? ?? Alignment.center,
+        memCacheWidth: _getMemCacheWidth(),
+        memCacheHeight: _getMemCacheHeight(),
         placeholder: (_, __) => _buildPlaceholder(),
         errorWidget: (_, __, ___) {
           return Image.network(
