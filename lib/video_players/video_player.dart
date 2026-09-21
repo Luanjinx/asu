@@ -302,10 +302,6 @@ class VideoPlayersComponent extends StatelessWidget {
                 onSettings: () {
                   Scaffold.of(ctx).openDrawer();
                 },
-                showEpisodeListButton: controller.allEpisodes.isNotEmpty && !controller.isFromDownloads && controller.stage.value != VideoPlayerStage.adPlaying,
-                onEpisodeList: () {
-                  Scaffold.of(ctx).openEndDrawer();
-                },
                 showMuteButton: !controller.isFromDownloads && controller.stage.value != VideoPlayerStage.adPlaying && controller.stage.value == VideoPlayerStage.playing,
                 isMuted: controller.playerManager.isMuted.value,
                 onToggleMute: () {
