@@ -8,6 +8,7 @@ import 'package:streamit_laravel/utils/common_base.dart';
 import 'package:streamit_laravel/utils/common_functions.dart';
 import 'package:streamit_laravel/utils/constants.dart';
 import 'package:streamit_laravel/video_players/video_player_controller.dart';
+import 'package:streamit_laravel/components/cached_image_widget.dart';
 
 import '../utils/colors.dart';
 
@@ -21,11 +22,14 @@ class VideoSettingsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool hasEpisodes = videoPlayerController.allEpisodes.isNotEmpty;
+    int tabLength = hasEpisodes ? 3 : 2;
+
     return Drawer(
       backgroundColor: appScreenBackgroundDark,
       child: SafeArea(
         child: DefaultTabController(
-          length: 2,
+          length: tabLength,
           initialIndex: 0,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,6 +87,7 @@ class VideoSettingsDialog extends StatelessWidget {
                       labelStyle: boldTextStyle(),
                       unselectedLabelStyle: commonPrimaryTextStyle(),
                       tabs: [
+                        if (hasEpisodes) Tab(text: locale.value.episodes),
                         Tab(text: locale.value.quality),
                         Tab(text: locale.value.subtitle),
                       ],
@@ -94,6 +99,8 @@ class VideoSettingsDialog extends StatelessWidget {
               Expanded(
                 child: TabBarView(
                   children: [
+                    if (hasEpisodes)
+                      _buildEpisodesTab(context),
                     // Quality Tab
                     SingleChildScrollView(
                       padding: const EdgeInsets.all(16),
@@ -112,6 +119,104 @@ class VideoSettingsDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildEpisodesTab(BuildContext context) {
+    return Obx(() {
+      final episodes = videoPlayerController.allEpisodes;
+      if (episodes.isEmpty) {
+        return Center(
+          child: Text(
+            locale.value.noDataFound,
+            style: primaryTextStyle(),
+          ),
+        );
+      }
+      
+      return ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: episodes.length,
+        separatorBuilder: (context, index) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final episode = episodes[index];
+          final isPlaying = videoPlayerController.videoModel.id == episode.id;
+
+          return GestureDetector(
+            onTap: () {
+              if (!isPlaying) {
+                Get.back(); // close drawer
+                videoPlayerController.playSpecificEpisode(episode);
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: boxDecorationDefault(
+                color: isPlaying ? appColorPrimary.withValues(alpha: 0.15) : cardColor,
+                borderRadius: radius(8),
+                border: Border.all(
+                  color: isPlaying ? appColorPrimary : Colors.transparent,
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  // Thumbnail
+                  SizedBox(
+                    width: 100,
+                    height: 60,
+                    child: Stack(
+                      children: [
+                        CachedImageWidget(
+                          url: episode.posterImage,
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                          radius: 6,
+                        ),
+                        if (isPlaying)
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.black45,
+                              borderRadius: radius(6),
+                            ),
+                            child: Center(
+                              child: Icon(Icons.play_circle_fill, color: appColorPrimary, size: 24),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  12.width,
+                  // Title & Duration
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          episode.details.name.capitalizeEachWord(),
+                          style: boldTextStyle(
+                            size: 14,
+                            color: isPlaying ? appColorPrimary : textPrimaryColorGlobal,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        4.height,
+                        if (episode.details.duration.isNotEmpty)
+                          Text(
+                            episode.details.duration,
+                            style: secondaryTextStyle(size: 12),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    });
   }
 
   Widget buildQualityOption(BuildContext context, String label, VideoData link, bool isSelected) {
