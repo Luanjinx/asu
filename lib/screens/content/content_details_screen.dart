@@ -34,6 +34,9 @@ import 'package:streamit_laravel/utils/empty_error_state_widget.dart';
 import 'package:streamit_laravel/utils/extension/string_extension.dart';
 import 'package:streamit_laravel/video_players/trailer/trailer_widget.dart';
 import 'package:streamit_laravel/video_players/video_screen.dart';
+import 'package:streamit_laravel/video_players/video_player.dart';
+import 'package:streamit_laravel/video_players/video_player_controller.dart';
+import 'package:streamit_laravel/video_players/video_settings_dialog.dart';
 
 class ContentDetailsScreen extends StatelessWidget {
   final ContentDetailsController contentDetailsController = Get.find<ContentDetailsController>();
@@ -62,6 +65,11 @@ class ContentDetailsScreen extends StatelessWidget {
           statusBarColor: appColorSecondary,
           isScrollableWidget: !isLandscape,
           onRefresh: contentDetailsController.onSwipeRefresh,
+          drawer: contentDetailsController.isPlayingMainVideo.value && Get.isRegistered<VideoPlayersController>(tag: 'video_controller_${contentDetailsController.content.value!.id}')
+              ? VideoSettingsDialog(
+                  videoPlayerController: Get.find<VideoPlayersController>(tag: 'video_controller_${contentDetailsController.content.value!.id}'),
+                )
+              : null,
           topbarChild: Obx(
             () => contentDetailsController.showShimmer.value
                 ? ShimmerWidget(
@@ -73,8 +81,26 @@ class ContentDetailsScreen extends StatelessWidget {
                         alignment: AlignmentGeometry.bottomCenter,
                         key: ValueKey(contentDetailsController.content.value!.id),
                         children: [
-                          contentDetailsController.showTrailer.value && contentDetailsController.content.value!.isTrailerAvailable
-                              ? Obx(
+                          if (contentDetailsController.isPlayingMainVideo.value)
+                            GetBuilder<VideoPlayersController>(
+                              tag: 'video_controller_${contentDetailsController.content.value!.id}',
+                              init: Get.put(
+                                VideoPlayersController(
+                                  remainingEpisodes: contentDetailsController.episodeList.isNotEmpty ? contentDetailsController.episodeList.sublist(contentDetailsController.currentEpisodeIndex.value + 1) : const <PosterDataModel>[],
+                                  allEpisodes: contentDetailsController.episodeList,
+                                ),
+                                tag: 'video_controller_${contentDetailsController.content.value!.id}',
+                                permanent: false,
+                              ),
+                              builder: (videoController) {
+                                return VideoPlayersComponent(
+                                  controller: videoController,
+                                  isEmbedded: true,
+                                );
+                              },
+                            )
+                          else if (contentDetailsController.showTrailer.value && contentDetailsController.content.value!.isTrailerAvailable)
+                              Obx(
                                   () {
                                     final isTrailer = contentDetailsController.isDefaultTrailerPlaying;
                                     return TrailerWidget(
@@ -113,7 +139,8 @@ class ContentDetailsScreen extends StatelessWidget {
                                     );
                                   },
                                 )
-                              : Hero(
+                              else
+                                Hero(
                                   tag: 'thumbnail_${contentDetailsController.content.value!.details.thumbnailImage}',
                                   child: CachedImageWidget(
                                     height: Get.height * 0.42,
@@ -123,26 +150,27 @@ class ContentDetailsScreen extends StatelessWidget {
                                     url: contentDetailsController.content.value!.details.thumbnailImage,
                                   ),
                                 ),
-                          IgnorePointer(
-                            ignoring: true,
-                            child: Container(
-                              height: Get.height * 0.42,
-                              width: Get.width,
-                              foregroundDecoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    black.withValues(alpha: 0.001),
-                                    black.withValues(alpha: 0.002),
-                                    black.withValues(alpha: 0.003),
-                                    black.withValues(alpha: 0.006),
-                                    black.withValues(alpha: 0.1),
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
+                          if (!contentDetailsController.isPlayingMainVideo.value)
+                            IgnorePointer(
+                              ignoring: true,
+                              child: Container(
+                                height: Get.height * 0.42,
+                                width: Get.width,
+                                foregroundDecoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      black.withValues(alpha: 0.001),
+                                      black.withValues(alpha: 0.002),
+                                      black.withValues(alpha: 0.003),
+                                      black.withValues(alpha: 0.006),
+                                      black.withValues(alpha: 0.1),
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                         ],
                       )
                     : const Offstage(),
@@ -956,22 +984,6 @@ class ContentDetailsScreen extends StatelessWidget {
   }
 
   void navigateToVideoScreen() async {
-    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    await SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-    Get.to(
-      () => VideoScreen(
-        remainingEpisodes:
-            contentDetailsController.episodeList.isNotEmpty ? contentDetailsController.episodeList.sublist(contentDetailsController.currentEpisodeIndex.value + 1) : const <PosterDataModel>[],
-        allEpisodes: contentDetailsController.episodeList,
-      ),
-      arguments: contentDetailsController.content.value,
-    )?.then((value) {
-      if(contentDetailsController.content.value!.isTrailerAvailable && !contentDetailsController.content.value!.isVideo) {
-        contentDetailsController.updateTrailerData(contentDetailsController.content.value!.trailerData.first);
-      }
-    });
+    contentDetailsController.isPlayingMainVideo(true);
   }
 }
