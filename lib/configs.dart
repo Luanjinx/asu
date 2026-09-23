@@ -18,7 +18,7 @@ const LIVE_AUTO_SLIDER_SECOND = 5;
 const API_VERSION = 3;
 
 ///DO NOT ADD SLASH HERE
-String DOMAIN_URL = "https://app.nexstream.biz.id";
+String DOMAIN_URL = "https://dramastream.cloud";
 
 bool isInReview = false;
 
